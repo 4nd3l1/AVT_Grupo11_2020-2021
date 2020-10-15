@@ -332,9 +332,10 @@ Matrix4D& Matrix4D::operator=(float val) {
 
 //Matrix4D Comparators
 bool Matrix4D::operator==(const Matrix4D& mat) {
+	float epsilon = 0.00005f;
 	for (int row = 0; row < 4; row++) {
 		for (int col = 0; col < 4; col++) {
-			if (matrix[row][col] != mat.matrix[row][col]) {
+			if (!(abs(matrix[row][col] - mat.matrix[row][col]) < epsilon)) {
 				return false;
 			}
 		}
@@ -345,15 +346,21 @@ bool Matrix4D::operator==(const Matrix4D& mat) {
 
 
 bool Matrix4D::operator!=(const Matrix4D& mat) {
+	float epsilon = 0.00005f;
+	int count = 0;
 	for (int row = 0; row < 4; row++) {
 		for (int col = 0; col < 4; col++) {
-			if (matrix[row][col] == mat.matrix[row][col]) { 
-				return false;
+			if (abs(matrix[row][col] - mat.matrix[row][col]) < epsilon) {
+				count++;
 			}
 		}
 	}
-
-	return true;
+	if (count == 16) {
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 //Matrix4D Methods

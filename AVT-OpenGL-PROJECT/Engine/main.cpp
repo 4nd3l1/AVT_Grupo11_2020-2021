@@ -51,8 +51,8 @@ void test2D() {
 	Vector2D v4;
 	Vector2D v5;
 	Vector2D v6(0.1f, 0.1f);
-	std::cout << "Test compare v4(0,0) = v5(0,0) : " << v4.compare(v5) << "\n";
-	std::cout << "Test compare v4(0,0) = v6(0.1f, 0.1f) : " << v4.compare(v6) << "\n";
+	std::cout << "Test compare v4(0,0) = v5(0,0) : " << (v4 == v5) << "\n";
+	std::cout << "Test compare v4(0,0) = v6(0.1f, 0.1f) : " << (v4 == v6) << "\n";
 
 	std::cout << "Test lenght v1: " << v1.length() << "\n";
 
@@ -100,8 +100,8 @@ void test3D() {
 	Vector3D v4;
 	Vector3D v5;
 	Vector3D v6 (0.1f, 0.1f, 0.1f);
-	std::cout << "Test compare v4(0,0,0) = v5(0,0,0) : " << v4.compare(v5) << "\n";
-	std::cout << "Test compare v4(0,0,0) = v6(0.1f, 0.1f, 0.1f) : " << v4.compare(v6) << "\n";
+	std::cout << "Test compare v4(0,0,0) = v5(0,0,0) : " << (v4 == v5) << "\n";
+	std::cout << "Test compare v4(0,0,0) = v6(0.1f, 0.1f, 0.1f) : " << (v4 == v6) << "\n";
 
 	std::cout << "Test lenght v1: " << v1.length() << "\n";
 
@@ -145,8 +145,8 @@ void test4D() {
 	Vector4D v4;
 	Vector4D v5;
 	Vector4D v6(0.1f, 0.1f, 0.1f, 0.1f);
-	std::cout << "Test compare v4(0,0,0,0) = v5(0,0,0,0) : " << v4.compare(v5) << "\n";
-	std::cout << "Test compare v4(0,0,0) = v6(0.1f, 0.1f, 0.1f, 0.1f) : " << v4.compare(v6) << "\n";
+	std::cout << "Test compare v4(0,0,0,0) = v5(0,0,0,0) : " << (v4 == v5) << "\n";
+	std::cout << "Test compare v4(0,0,0) = v6(0.1f, 0.1f, 0.1f, 0.1f) : " << (v4 == v6) << "\n";
 
 	std::cout << "Test lenght v1: " << v1.length() << "\n";
 
@@ -288,6 +288,7 @@ int main(int argc, char* argv[])
 
 	Matrix3D mat3(1);
 	std::cout << "Matrix 3: " << mat3 << "\n";
+
 
 	std::cout << "\n=======MATRIX-MATRIX OPERATORS=======\n";
 	std::cout << "Matrix 1: " << mat1 << "\n";
@@ -434,6 +435,7 @@ int main(int argc, char* argv[])
 	Matrix2D mat6(1);
 	std::cout << "Matrix 6: " << mat6 << "\n";
 
+
 	std::cout << "\n=======MATRIX-MATRIX OPERATORS=======\n";
 	std::cout << "Matrix 8: " << mat8 << "\n";
 	std::cout << "Matrix 5: " << mat5 << "\n";
@@ -574,6 +576,7 @@ int main(int argc, char* argv[])
 	Matrix4D mat11(1);
 	std::cout << "Matrix 11: " << mat11 << "\n";
 
+
 	std::cout << "\n=======MATRIX-MATRIX OPERATORS=======\n";
 	std::cout << "Matrix 9: " << mat9 << "\n";
 	std::cout << "Matrix 10: " << mat10 << "\n";
@@ -584,7 +587,6 @@ int main(int argc, char* argv[])
 
 	std::cout << "Matrix11 * Matrix10 = " << mat11 * mat10 << "\n";
 	std::cout << "Matrix10 * Matrix11 = " << mat10 * mat11 << "\n";
-
 
 	std::cout << "\n=======MATRIX-SCALAR OPERATORS=======\n";
 	std::cout << "Matrix11: " << mat11 << "\n";

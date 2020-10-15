@@ -292,9 +292,10 @@ Matrix2D& Matrix2D::operator=(float val) {
 
 //Matrix2D Comparators
 bool Matrix2D::operator==(const Matrix2D& mat) {
+	float epsilon = 0.00005f;
 	for (int row = 0; row < 2; row++) {
 		for (int col = 0; col < 2; col++) {
-			if (matrix[row][col] != mat.matrix[row][col]) {
+			if (!(abs(matrix[row][col] - mat.matrix[row][col]) < epsilon)) {
 				return false;
 			}
 		}
@@ -305,15 +306,21 @@ bool Matrix2D::operator==(const Matrix2D& mat) {
 
 
 bool Matrix2D::operator!=(const Matrix2D& mat) {
+	float epsilon = 0.00005f;
+	int count = 0;
 	for (int row = 0; row < 2; row++) {
 		for (int col = 0; col < 2; col++) {
-			if (matrix[row][col] == mat.matrix[row][col]) { 
-				return false;
+			if (abs(matrix[row][col] - mat.matrix[row][col]) < epsilon) {
+				count++;
 			}
 		}
 	}
-
-	return true;
+	if (count == 4) {
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 //Matrix2D Methods

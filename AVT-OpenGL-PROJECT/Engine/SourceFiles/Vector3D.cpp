@@ -16,18 +16,6 @@ Vector3D::Vector3D(float _x, float _y, float _z) {
 	z = _z;
 }
 
-
-
-//Compare
-bool Vector3D::compare(Vector3D& source) {
-	if (x == source.x && y == source.y && z == source.z) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 //Vector3D Getters
 float Vector3D::getX() {
 	return x;
@@ -134,14 +122,20 @@ Vector3D& Vector3D::operator/=(float operand)
 
 //Vector3D Comparators
 bool Vector3D::operator==(Vector3D& vec) {
-	if (x == vec.x && y == vec.y && z == vec.z) {
+	float epsilon = 0.00005f;
+	if (abs(x - vec.getX()) < epsilon && 
+		abs(y - vec.getY()) < epsilon && 
+		abs(z - vec.getZ()) < epsilon) {
 		return true;
 	}
 	return false;
 }
 
 bool Vector3D::operator!=(Vector3D& vec) {
-	if (x == vec.x && y == vec.y && z == vec.z) {
+	float epsilon = 0.00005f;
+	if (!(abs(x - vec.getX()) < epsilon &&
+		abs(y - vec.getY()) < epsilon &&
+		abs(z - vec.getZ()) < epsilon)) {
 		return false;
 	}
 	return true;

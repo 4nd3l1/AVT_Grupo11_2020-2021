@@ -87,11 +87,6 @@ public:
     float dot(Vector4D& component);
 
      
-    // Função responsável por verificar se um vetor é igual a outro
-     
-    bool compare(Vector4D& component);
-
-     
     // Função responsável por retornar o tamanho de um vetor
      
     double length();

@@ -16,18 +16,6 @@ Vector4D::Vector4D(float _x, float _y, float _z, float _w) {
 	w = _w;
 }
 
-
-
-//Compare
-bool Vector4D::compare(Vector4D& source) {
-	if (x == source.x && y == source.y && z == source.z && w == source.w) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 //Vector4D Getters
 float Vector4D::getX() {
 	return x;
@@ -147,14 +135,22 @@ Vector4D& Vector4D::operator/=(float operand)
 
 //Vector4D Comparators
 bool Vector4D::operator==(Vector4D& vec) {
-	if (x == vec.x && y == vec.y && z == vec.z && w == vec.w) {
+	float epsilon = 0.00005f;
+	if (abs(x - vec.getX()) < epsilon &&
+		abs(y - vec.getY()) < epsilon &&
+		abs(z - vec.getZ()) < epsilon &&
+		abs(w - vec.getW()) < epsilon) {
 		return true;
 	}
 	return false;
 }
 
 bool Vector4D::operator!=(Vector4D& vec) {
-	if (x == vec.x && y == vec.y && z == vec.z && w == vec.w) {
+	float epsilon = 0.00005f;
+	if (!(abs(x - vec.getX()) < epsilon &&
+		abs(y - vec.getY()) < epsilon &&
+		abs(z - vec.getZ()) < epsilon) &&
+		abs(w - vec.getW()) < epsilon) {
 		return false;
 	}
 	return true;

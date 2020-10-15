@@ -319,9 +319,10 @@ Matrix3D& Matrix3D::operator=(float val) {
 
 //Matrix3D Comparators
 bool Matrix3D::operator==(const Matrix3D& mat) {
+	float epsilon = 0.00005f;
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
-			if (matrix[row][col] != mat.matrix[row][col]) {
+			if (!(abs(matrix[row][col] - mat.matrix[row][col]) < epsilon)) {
 				return false;
 			}
 		}
@@ -332,12 +333,11 @@ bool Matrix3D::operator==(const Matrix3D& mat) {
 
 
 bool Matrix3D::operator!=(const Matrix3D& mat) {
-	
-	
+	float epsilon = 0.00005f;
 	int count = 0;
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
-			if (matrix[row][col] == mat.matrix[row][col]) { 
+			if (abs(matrix[row][col] - mat.matrix[row][col]) < epsilon) {
 				count++;
 			}
 		}

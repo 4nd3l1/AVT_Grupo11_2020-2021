@@ -12,17 +12,6 @@ Vector2D::Vector2D(float _x, float _y) {
 	y = _y;
 }
 
-
-//Compare
-bool Vector2D::compare(Vector2D& source) {
-	if (x == source.x && y == source.y) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 //Vector2D Getters
 float Vector2D::getX() {
 	return x;
@@ -115,14 +104,16 @@ Vector2D& Vector2D::operator/=(float operand)
 
 //Vector2D Comparators
 bool Vector2D::operator==(Vector2D& vec) {
-	if (x == vec.x && y == vec.y) {
+	float epsilon = 0.00005f;
+	if (abs( x - vec.getX()) < epsilon && abs(y - vec.getY()) < epsilon) {
 		return true;
 	}
 	return false;
 }
 
 bool Vector2D::operator!=(Vector2D& vec) {
-	if (x == vec.x && y == vec.y) {
+	float epsilon = 0.00005f;
+	if (!(abs(x - vec.getX()) < epsilon && abs(y - vec.getY()) < epsilon)) {
 		return false;
 	}
 	return true;
