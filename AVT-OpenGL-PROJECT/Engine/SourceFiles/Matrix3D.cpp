@@ -44,10 +44,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix3D& matrix)
 }
 
 
-//Clone
-Matrix3D Matrix3D::clone() {
-	return Matrix3D(matrix);
-}
+
 
 //Matrix3D Getters
 float Matrix3D::get(int row, int col) {
@@ -322,6 +319,7 @@ float Matrix3D::determinant() {
 
 	return det;
 }
+
 
 Matrix3D Matrix3D::adjoint() { 
 	Matrix3D trans = transposed();

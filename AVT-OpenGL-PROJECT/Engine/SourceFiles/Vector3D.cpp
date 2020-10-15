@@ -16,10 +16,7 @@ Vector3D::Vector3D(float _x, float _y, float _z) {
 	z = _z;
 }
 
-//Clone
-Vector3D Vector3D::clone() {
-	return Vector3D(x, y, z);
-}
+
 
 //Compare
 bool Vector3D::compare(Vector3D& source) {
@@ -161,9 +158,14 @@ double Vector3D::length() {
 void Vector3D::normalize()
 {
 	double l = length();
-	x /= l;
-	y /= l;
-	z /= l;
+	if (l != 0) {
+		x /= l;
+		y /= l;
+		z /= l;
+	}
+	else{
+		exit(EXIT_FAILURE);
+	}
 }
 
 //toString

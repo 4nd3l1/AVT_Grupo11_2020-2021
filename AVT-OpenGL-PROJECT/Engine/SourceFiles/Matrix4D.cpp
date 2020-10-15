@@ -44,10 +44,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix4D& matrix)
 }
 
 
-//Clone
-Matrix4D Matrix4D::clone() {
-	return Matrix4D(matrix);
-}
+
 
 //Matrix4D Getters
 float Matrix4D::get(int row, int col) {

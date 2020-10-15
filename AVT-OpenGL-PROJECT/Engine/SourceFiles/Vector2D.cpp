@@ -12,10 +12,6 @@ Vector2D::Vector2D(float _x, float _y) {
 	y = _y;
 }
 
-//Clone
-Vector2D Vector2D::clone() {
-	return Vector2D(x, y);
-}
 
 //Compare
 bool Vector2D::compare(Vector2D& source) {
@@ -142,8 +138,15 @@ double Vector2D::length() {
 //Normalize
 void Vector2D::normalize()
 {
-	x /= length();
-	y /= length();
+
+	double l = length();
+	if (l != 0) {
+		x /= l;
+		y /= l;
+	}
+	else {
+		exit(EXIT_FAILURE);
+	}
 }
 
 //toString

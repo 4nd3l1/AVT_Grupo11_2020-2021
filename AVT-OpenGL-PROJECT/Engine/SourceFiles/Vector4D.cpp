@@ -16,10 +16,7 @@ Vector4D::Vector4D(float _x, float _y, float _z, float _w) {
 	w = _w;
 }
 
-//Clone
-Vector4D Vector4D::clone() {
-	return Vector4D(x, y, z, w);
-}
+
 
 //Compare
 bool Vector4D::compare(Vector4D& source) {
@@ -173,10 +170,16 @@ double Vector4D::length() {
 //Normalize
 void Vector4D::normalize()
 {
-	x /= length();
-	y /= length();
-	z /= length();
-	w /= length();
+	double l = length();
+	if (l != 0) {
+		x /= l;
+		y /= l;
+		z /= l;
+		w /= l;
+	}
+	else {
+		exit(EXIT_FAILURE);
+	}
 }
 
 //toString

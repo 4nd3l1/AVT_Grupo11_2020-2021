@@ -43,10 +43,6 @@ std::ostream& operator<<(std::ostream& os, const Matrix2D& matrix)
 }
 
 
-//Clone
-Matrix2D Matrix2D::clone() {
-	return Matrix2D(matrix);
-}
 
 //Matrix2D Getters
 float Matrix2D::get(int row, int col) {
