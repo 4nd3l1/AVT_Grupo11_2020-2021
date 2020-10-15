@@ -145,12 +145,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine\SourceFiles\main.cpp" />
+    <ClCompile Include="Engine\main.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Matrix2D.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Matrix3D.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Matrix4D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector2D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector3D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector4D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\HeaderFiles\Matrix2D.h" />
+    <ClInclude Include="Engine\HeaderFiles\Matrix3D.h" />
+    <ClInclude Include="Engine\HeaderFiles\Matrix4D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector2D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector3D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector4D.h" />
