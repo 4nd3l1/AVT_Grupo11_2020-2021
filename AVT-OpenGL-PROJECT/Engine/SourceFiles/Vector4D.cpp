@@ -1,7 +1,6 @@
 #include "../HeaderFiles/Vector4D.h"
 #include <cassert>
 
-
 // Vector 3 Constructors
 Vector4D::Vector4D() {
 	x = 0;
@@ -17,16 +16,11 @@ Vector4D::Vector4D(float _x, float _y, float _z, float _w) {
 	w = _w;
 }
 
-//Clone
-Vector4D Vector4D::clone() {
-	return Vector4D(x, y, z, w);
-}
+
 
 //Compare
 bool Vector4D::compare(Vector4D& source) {
-	float epsilon = 0.0005f;
-	if (abs(x / source.getX()) - 1 < epsilon && abs(y / source.getY()) - 1 < epsilon 
-		&& abs(z / source.getZ()) - 1 < epsilon && abs(w / source.getW()) - 1 < epsilon) {
+	if (x == source.x && y == source.y && z == source.z && w == source.w) {
 		return true;
 	}
 	else {
@@ -176,10 +170,16 @@ double Vector4D::length() {
 //Normalize
 void Vector4D::normalize()
 {
-	assert(length() != 0);	
-	y /= length();
-	z /= length();
-	w /= length();
+	double l = length();
+	if (l != 0) {
+		x /= l;
+		y /= l;
+		z /= l;
+		w /= l;
+	}
+	else {
+		exit(EXIT_FAILURE);
+	}
 }
 
 //toString

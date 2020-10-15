@@ -16,15 +16,11 @@ Vector3D::Vector3D(float _x, float _y, float _z) {
 	z = _z;
 }
 
-//Clone
-Vector3D Vector3D::clone() {
-	return Vector3D(x, y, z);
-}
+
 
 //Compare
 bool Vector3D::compare(Vector3D& source) {
-	float epsilon = 0.0005f;
-	if (abs(x / source.getX()) - 1 < epsilon && abs(y / source.getY()) - 1 < epsilon && abs(z / source.getZ()) - 1 < epsilon) {
+	if (x == source.x && y == source.y && z == source.z) {
 		return true;
 	}
 	else {
@@ -161,10 +157,15 @@ double Vector3D::length() {
 //Normalize
 void Vector3D::normalize()
 {
-	assert(length() != 0);
-	x /= length();
-	y /= length();
-	z /= length();
+	double l = length();
+	if (l != 0) {
+		x /= l;
+		y /= l;
+		z /= l;
+	}
+	else{
+		exit(EXIT_FAILURE);
+	}
 }
 
 //toString

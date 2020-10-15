@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+ 
 //
 // Assignment 1 consists in the following:
 //
@@ -16,7 +16,7 @@
 //
 // (c)2013-20 by Carlos Martinho
 //
-///////////////////////////////////////////////////////////////////////////////
+ 
 
 #include <iostream>
 #include <sstream>
@@ -345,7 +345,7 @@ void test2D() {
 	std::cout << "Test constructor #1: " << v1.toString() << "\n";
 	std::cout << "Test constructor #2: " << v2.toString() << "\n";
 
-	std::cout << "Test clone v2: " << v2.clone().toString() << "\n";
+
 
 	std::cout << "Test operator v1 += v2: " << (v1 += v2).toString() << "\n";
 
@@ -393,7 +393,6 @@ void test3D() {
 	std::cout << "Test constructor #1: " << v1.toString() << "\n";
 	std::cout << "Test constructor #2: " << v2.toString() << "\n";
 
-	std::cout << "Test clone v2: " << v2.clone().toString() << "\n";
 
 	std::cout << "Test operator v1 += v2: " << (v1 += v2).toString() << "\n";
 
@@ -441,7 +440,6 @@ void test4D() {
 	std::cout << "Test constructor #1: " << v1.toString() << "\n";
 	std::cout << "Test constructor #2: " << v2.toString() << "\n";
 
-	std::cout << "Test clone v2: " << v2.clone().toString() << "\n";
 
 	std::cout << "Test operator v1 += v2: " << (v1 += v2).toString() << "\n";
 

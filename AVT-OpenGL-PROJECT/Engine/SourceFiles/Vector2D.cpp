@@ -1,8 +1,6 @@
 #include "../HeaderFiles/Vector2D.h"
 #include <cassert>
 
-
-
 // Vector 3 Constructors
 Vector2D::Vector2D() {
 	x = 0;
@@ -14,15 +12,10 @@ Vector2D::Vector2D(float _x, float _y) {
 	y = _y;
 }
 
-//Clone
-Vector2D Vector2D::clone() {
-	return Vector2D(x, y);
-}
 
 //Compare
 bool Vector2D::compare(Vector2D& source) {
-	float epsilon = 0.0005f;
-	if ( abs(x / source.getX()) - 1 < epsilon && abs(y / source.getY()) - 1 < epsilon) {
+	if (x == source.x && y == source.y) {
 		return true;
 	}
 	else {
@@ -145,9 +138,15 @@ double Vector2D::length() {
 //Normalize
 void Vector2D::normalize()
 {
-	assert(length() != 0);
-	x /= length();
-	y /= length();
+
+	double l = length();
+	if (l != 0) {
+		x /= l;
+		y /= l;
+	}
+	else {
+		exit(EXIT_FAILURE);
+	}
 }
 
 //toString
