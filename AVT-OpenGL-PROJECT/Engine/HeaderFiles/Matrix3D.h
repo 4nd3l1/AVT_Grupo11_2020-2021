@@ -1,5 +1,5 @@
-#ifndef MATRIX_3
-#define MATRIX_3
+#ifndef MATRIX_3D
+#define MATRIX_3D
 
 // Matrix3D CLASS HEADER
 
@@ -8,6 +8,8 @@
 #include<iostream>
 
 class Vector3D;
+class Matrix2D;
+class Matrix4D;
 
 class Matrix3D {
 	private:
@@ -29,6 +31,14 @@ class Matrix3D {
 
 		Matrix3D(float mat[3][3]);
 
+		// Function used to create a Matrix3 from a Matrix2
+		
+		Matrix3D(Matrix2D& mat);
+
+		// Function used to create a Matrix3 from a Matrix4
+		
+		Matrix3D(Matrix4D& mat);
+
 		
 		 // Overloading of the << operator. Prints our Matrix
 		  
@@ -45,16 +55,33 @@ class Matrix3D {
 
 		void set(int row, int col, float val);
 
+		// Overloading of the [] operator to get a row
+	
+		float* operator[](int val);
 		
 		 // Overloading of the + operator when summing two Matrix3D
 
 		Matrix3D operator+(const Matrix3D& mat);
 
+		// Overloading of the + operator when adding a matrix and a value
+		
+		Matrix3D operator+(float val);
+
+		// Overloading of the + operator when adding a matrix and a value
+		
+		friend Matrix3D operator+(float val, Matrix3D& mat);
 		
 		 // Overloading of the - operator when subtracting two Matrix3D
 
 		Matrix3D operator-(const Matrix3D& mat);
 
+		// Overloading of the - operator when subtracting a matrix and a value
+		
+		Matrix3D operator-(float val);
+
+		// Overloading of the - operator when subtracting a matrix and a value
+		
+		friend Matrix3D operator-(float val, Matrix3D& mat);
 		
 		 // Overloading of the * operator when multiplying two Matrix3D
 

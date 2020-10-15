@@ -1,5 +1,5 @@
-#ifndef MATRIX_2
-#define MATRIX_2
+#ifndef MATRIX_2D
+#define MATRIX_2D
 
 // Matrix2D CLASS HEADER
 
@@ -8,6 +8,8 @@
 #include<iostream>
 
 class Vector2D;
+class Matrix3D;
+class Matrix4D;
 
 class Matrix2D {
 private:
@@ -29,7 +31,14 @@ public:
 
 	Matrix2D(float mat[2][2]);
 
+	// Function used to create a Matrix2 from a Matrix3
 	
+	Matrix2D(Matrix3D& mat);
+
+	// Function used to create a Matrix2 from a Matrix4
+	
+	Matrix2D(Matrix4D& mat);
+
 	 // Overloading of the << operator. Prints our Matrix
 	  
 	friend std::ostream& operator<<(std::ostream& output, const Matrix2D& vec);
@@ -45,15 +54,29 @@ public:
 	void set(int row, int col, float val);
 
 	
+	// Overloading of the [] operator to get a row
+
+	float* operator[](int val);
+
 	 // Overloading of the + operator when summing two Matrix3
 
 	Matrix2D operator+(const Matrix2D& mat);
 
+	// Overloading of the + operator when adding a matrix and a value
+	
+	Matrix2D operator+(float val);
 	
 	 // Overloading of the - operator when subtracting two Matrix3
 
 	Matrix2D operator-(const Matrix2D& mat);
 
+	// Overloading of the - operator when subtracting a matrix and a value
+
+	Matrix2D operator-(float val);
+
+	// Overloading of the - operator when subtracting a matrix and a value
+
+	friend Matrix2D operator-(float val, Matrix2D& mat);
 	
 	 // Overloading of the * operator when multiplying two Matrix3
 

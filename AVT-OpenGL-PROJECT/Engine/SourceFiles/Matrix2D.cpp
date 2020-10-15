@@ -1,4 +1,6 @@
 #include "../HeaderFiles/Matrix2D.h"
+#include "../HeaderFiles/Matrix3D.h"
+#include "../HeaderFiles/Matrix4D.h"
 
 #include "../HeaderFiles/Vector2D.h"
 
@@ -17,6 +19,22 @@ Matrix2D::Matrix2D(float val) {
 }
 
 Matrix2D::Matrix2D(float mat[2][2]) {
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			matrix[row][col] = mat[row][col];
+		}
+	}
+}
+
+Matrix2D::Matrix2D(Matrix3D& mat) {
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			matrix[row][col] = mat[row][col];
+		}
+	}
+}
+
+Matrix2D::Matrix2D(Matrix4D& mat) {
 	for (int row = 0; row < 2; row++) {
 		for (int col = 0; col < 2; col++) {
 			matrix[row][col] = mat[row][col];
@@ -58,19 +76,28 @@ void Matrix2D::set(int row, int col, float val) {
 
 
 //Matrix2D Operations
+
+float* Matrix2D::operator[](int val) {
+	return matrix[val];
+}
+
 Matrix2D Matrix2D::operator+(const Matrix2D& mat)
 {
-	/* NEEDLESS ASSERTION
-	int noRows = sizeof(mat.matrix) / sizeof(mat.matrix[0]);
-	int noCols = sizeof(mat.matrix[0]) / sizeof(float);
-	std::cout << noRows << "\n";
-	assert(noRows == 2 && noCols == 2);
-	*/
-
 	Matrix2D matSum;
 	for (int row = 0; row < 2; row++) {
 		for (int col = 0; col < 2; col++) {
 			matSum.matrix[row][col] = matrix[row][col] + mat.matrix[row][col];
+		}
+	}
+
+	return matSum;
+}
+
+Matrix2D Matrix2D::operator+(float val) {
+	Matrix2D matSum;
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			matSum.matrix[row][col] = matrix[row][col] + val;
 		}
 	}
 
@@ -83,6 +110,28 @@ Matrix2D Matrix2D::operator-(const Matrix2D& mat)
 	for (int row = 0; row < 2; row++) {
 		for (int col = 0; col < 2; col++) {
 			matSub.matrix[row][col] = matrix[row][col] - mat.matrix[row][col];
+		}
+	}
+
+	return matSub;
+}
+
+Matrix2D Matrix2D::operator-(float val) {
+	Matrix2D matSum;
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			matSum.matrix[row][col] = matrix[row][col] - val;
+		}
+	}
+
+	return matSum;
+}
+
+Matrix2D operator-(float val, Matrix2D& mat) {
+	Matrix2D matSub;
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			matSub.matrix[row][col] = val - mat.matrix[row][col];
 		}
 	}
 

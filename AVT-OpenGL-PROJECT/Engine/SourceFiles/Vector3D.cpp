@@ -158,14 +158,10 @@ double Vector3D::length() {
 void Vector3D::normalize()
 {
 	double l = length();
-	if (l != 0) {
+	assert(length() != 0);
 		x /= l;
 		y /= l;
 		z /= l;
-	}
-	else{
-		exit(EXIT_FAILURE);
-	}
 }
 
 //toString

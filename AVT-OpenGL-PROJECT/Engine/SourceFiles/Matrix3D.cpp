@@ -1,4 +1,5 @@
 #include "../HeaderFiles/Matrix3D.h"
+#include "../HeaderFiles/Matrix4D.h"
 
 #include "../HeaderFiles/Vector3D.h"
 
@@ -18,6 +19,28 @@ Matrix3D::Matrix3D(float val) {
 }
 
 Matrix3D::Matrix3D(float mat[3][3]) {
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			matrix[row][col] = mat[row][col];
+		}
+	}
+}
+
+Matrix3D::Matrix3D(Matrix2D& mat) {
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			if (row == 2 || col == 2) {
+				matrix[row][col] = 0;
+			}
+			else {
+				matrix[row][col] = mat[row][col];
+
+			}
+		}
+	}
+}
+
+Matrix3D::Matrix3D(Matrix4D& mat) {
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
 			matrix[row][col] = mat[row][col];
@@ -58,21 +81,41 @@ void Matrix3D::set(int row, int col, float val) {
 	matrix[row][col] = val;
 }
 
+float* Matrix3D::operator[](int val) {
+	return matrix[val];
+}
 
 //Matrix3D Operations
 Matrix3D Matrix3D::operator+(const Matrix3D& mat)
 {
-	/* NEEDLESS ASSERTION
-	int noRows = sizeof(mat.matrix) / sizeof(mat.matrix[0]);
-	int noCols = sizeof(mat.matrix[0]) / sizeof(float);
-	std::cout << noRows << "\n";
-	assert(noRows == 3 && noCols == 3);
-	*/
-
 	Matrix3D matSum;
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
 			matSum.matrix[row][col] = matrix[row][col] + mat.matrix[row][col];
+		}
+	}
+
+	return matSum;
+}
+
+Matrix3D Matrix3D::operator+(float val)
+{
+	Matrix3D matSum;
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			matSum.matrix[row][col] = matrix[row][col] + val;
+		}
+	}
+
+	return matSum;
+}
+
+Matrix3D operator+(float val, Matrix3D& mat)
+{
+	Matrix3D matSum;
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			matSum.matrix[row][col] = mat.matrix[row][col] + val;
 		}
 	}
 
@@ -89,6 +132,30 @@ Matrix3D Matrix3D::operator-(const Matrix3D& mat)
 	}
 
 	return matSub;
+}
+
+Matrix3D Matrix3D::operator-(float val)
+{
+	Matrix3D matSum;
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			matSum.matrix[row][col] = matrix[row][col] - val;
+		}
+	}
+
+	return matSum;
+}
+
+Matrix3D operator-(float val, Matrix3D& mat)
+{
+	Matrix3D matSum;
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			matSum.matrix[row][col] = val - mat.matrix[row][col];
+		}
+	}
+
+	return matSum;
 }
 
 Matrix3D Matrix3D::operator*(const Matrix3D& mat) {
@@ -265,19 +332,12 @@ bool Matrix3D::operator==(const Matrix3D& mat) {
 
 
 bool Matrix3D::operator!=(const Matrix3D& mat) {
-	for (int row = 0; row < 3; row++) {
-		for (int col = 0; col < 3; col++) {
-			if (matrix[row][col] == mat.matrix[row][col]) { 
-				return false;
-			}
-		}
-	}
-
-	/* 
+	
+	
 	int count = 0;
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
-			if (matrix[row][col] == mat.matrix[row][col]) { // One equality is enough?
+			if (matrix[row][col] == mat.matrix[row][col]) { 
 				count++;
 			}
 		}
@@ -285,10 +345,9 @@ bool Matrix3D::operator!=(const Matrix3D& mat) {
 	if (count == 9){
 		return false;
 	}
-	*/
-
-
-	return true;
+	else {
+		return true;
+	}
 }
 
 //Matrix3D Methods

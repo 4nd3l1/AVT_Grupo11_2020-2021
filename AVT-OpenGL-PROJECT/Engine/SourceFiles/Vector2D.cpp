@@ -140,13 +140,9 @@ void Vector2D::normalize()
 {
 
 	double l = length();
-	if (l != 0) {
+	assert(length() != 0);
 		x /= l;
 		y /= l;
-	}
-	else {
-		exit(EXIT_FAILURE);
-	}
 }
 
 //toString
