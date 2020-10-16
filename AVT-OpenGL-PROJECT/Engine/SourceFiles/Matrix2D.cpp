@@ -358,6 +358,7 @@ float Matrix2D::determinant() {
 	}
 
 	Matrix2D Matrix2D::inverse() { 
+		assert(determinant()!=0);
 		return adjoint() / determinant();
 	}
 
