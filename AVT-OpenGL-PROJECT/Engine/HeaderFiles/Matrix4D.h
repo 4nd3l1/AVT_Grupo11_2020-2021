@@ -173,9 +173,9 @@ public:
 	Matrix4D transposed();
 
 	
-	 // Converts a row major to column major and column major to row major (respectively)
+	// Transposes the matrix
 
-	Matrix4D convertMajorOrder();
+	Matrix4D& transpose();
 
 	
 	 // Returns the adjoint matrix
@@ -221,6 +221,14 @@ public:
 	// Returns the translation matrix according to the given parameters (vector)
 	 
 	static Matrix4D translation(Vector3D& vec);
+
+	// Returns the matrix in ColMajor format
+
+	void getColMajor(float array[16]);
+
+	// Returns the matrix in RowMajor format
+
+	void getRowMajor(float array[16]);
 };
 
 

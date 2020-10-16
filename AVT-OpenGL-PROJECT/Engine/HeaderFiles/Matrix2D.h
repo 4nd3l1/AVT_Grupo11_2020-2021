@@ -167,9 +167,9 @@ public:
 	Matrix2D transposed();
 
 	
-	 // Converts a row major to column major and column major to row major (respectively)
+	 // Transposes the matrix
 
-	Matrix2D convertMajorOrder();
+	Matrix2D& transpose();
 
 	
 	 // Returns the matrix's determinant
@@ -190,6 +190,14 @@ public:
 	 // Returns the identity matrix
 
 	static Matrix2D identity();
+
+	// Returns the matrix in ColMajor format
+
+	void getColMajor(float array[4]);
+
+	// Returns the matrix in RowMajor format
+
+	void getRowMajor(float array[4]);
 
 };
 

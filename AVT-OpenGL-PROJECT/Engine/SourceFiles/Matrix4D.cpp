@@ -375,10 +375,8 @@ Matrix4D Matrix4D::transposed() {
 	return trans;
 }
 
-Matrix4D Matrix4D::convertMajorOrder() {
-
-	*this = transposed();
-
+Matrix4D& Matrix4D::transpose() {
+	*this = this->transposed();
 	return *this;
 }
 
@@ -540,5 +538,23 @@ Matrix4D Matrix4D::adjoint() {
 				{0,0,0,1}
 			}
 		);
+	}
+
+	void Matrix4D::getColMajor(float array[16]) {
+		int i = 0;
+		for (int col = 0; col < 4; col++) {
+			for (int row = 0; row < 4; row++) {
+				array[i] = matrix[row][col];
+			}
+		}
+	}
+
+	void Matrix4D::getRowMajor(float array[16]) {
+		int i = 0;
+		for (int row = 0; row < 4; row++) {
+			for (int col = 0; col < 4; col++) {
+				array[i] = matrix[row][col];
+			}
+		}
 	}
 	

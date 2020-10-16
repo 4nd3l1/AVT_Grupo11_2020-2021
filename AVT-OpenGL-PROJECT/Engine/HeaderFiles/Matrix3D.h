@@ -173,9 +173,9 @@ class Matrix3D {
 		Matrix3D transposed();
 
 		
-		 // Converts a row major to column major and column major to row major (respectively)
+		// Transposes the matrix
 
-		Matrix3D convertMajorOrder();
+		Matrix3D& transpose();
 
 		
 		 // Returns the matrix's determinant
@@ -201,6 +201,14 @@ class Matrix3D {
 		 // Returns the dual matrix according to the given vector
 
 		static Matrix3D dual(Vector3D& vec);
+
+		// Returns the matrix in ColMajor format
+
+		void getColMajor(float array[9]);
+
+		// Returns the matrix in RowMajor format
+
+		void getRowMajor(float array[9]);
 };
 
 

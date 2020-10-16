@@ -248,10 +248,6 @@ int main(int argc, char* argv[])
 	int gl_major = 4, gl_minor = 3;
 	int is_fullscreen = 0;
 	int is_vsync = 1;
-	 //GLFWwindow* win = setup(gl_major, gl_minor, 
-		//640, 480, "OpenGL Viewer (GLFW)", is_fullscreen, is_vsync);
-	 //run(win);
-	// vectorsMenu();
 
 	/* Challenge #1
 	std::cout << "2.1 - " << Vector3D(1.5, 3.2, 0.8).rodriguesRot(Vector3D(8, 2, 0), 24).toString() << "\n";
@@ -388,8 +384,8 @@ int main(int argc, char* argv[])
 	std::cout << "Transposed Matrix1: " << mat1.transposed();
 	std::cout << "Transposed Matrix2: " << mat2.transposed();
 
-	std::cout << "Col Major Matrix2: " << mat2.convertMajorOrder();
-	std::cout << "Row Major Matrix2: " << mat2.convertMajorOrder();
+	std::cout << "Transpose Matrix1: " << mat1.transpose();
+	std::cout << "Transpose Matrix2: " << mat2.transpose();
 
 	std::cout << "Determinant Matrix1: " << mat1.determinant() << "\n";
 	std::cout << "Determinant Matrix2: " << mat2.determinant() << "\n";
@@ -533,8 +529,8 @@ int main(int argc, char* argv[])
 	std::cout << "Transposed Matrix 8: " << mat8.transposed();
 	std::cout << "Transposed Matrix 5: " << mat5.transposed();
 
-	std::cout << "Col Major Matrix 5: " << mat5.convertMajorOrder();
-	std::cout << "Row Major Matrix 5: " << mat5.convertMajorOrder();
+	std::cout << "Transpose Matrix 8: " << mat8.transpose();
+	std::cout << "Transpose Matrix 5: " << mat5.transpose();
 
 	std::cout << "Determinant Matrix 8: " << mat8.determinant() << "\n";
 	std::cout << "Determinant Matrix 5: " << mat5.determinant() << "\n";
@@ -682,8 +678,8 @@ int main(int argc, char* argv[])
 	std::cout << "Transposed Matrix9: " << mat9.transposed();
 	std::cout << "Transposed Matrix10: " << mat10.transposed();
 
-	std::cout << "Col Major Matrix10: " << mat10.convertMajorOrder();
-	std::cout << "Row Major Matrix10: " << mat10.convertMajorOrder();
+	std::cout << "Transpose Matrix9: " << mat9.transpose();
+	std::cout << "Transpose Matrix10: " << mat10.transpose();
 
 	std::cout << "Identity Matrix: " << Matrix3D::identity();
 

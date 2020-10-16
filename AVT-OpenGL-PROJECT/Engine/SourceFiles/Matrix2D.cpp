@@ -335,15 +335,8 @@ Matrix2D Matrix2D::transposed() {
 	return trans;
 }
 
-Matrix2D Matrix2D::convertMajorOrder() {
-	Matrix2D trans = this->transposed();
-
-	for (int row = 0; row < 2; row++) {
-		for (int col = 0; col < 2; col++) {
-			matrix[row][col] = trans.matrix[row][col];
-		}
-	}
-
+Matrix2D& Matrix2D::transpose() {
+	*this = this->transposed();
 	return *this;
 }
 
@@ -364,4 +357,22 @@ float Matrix2D::determinant() {
 
 	Matrix2D Matrix2D::identity() {
 		return Matrix2D(new float[2][2]{ {1,0},{0,1} });
+	}
+
+	void Matrix2D::getColMajor(float array[4]) {
+		int i = 0;
+		for (int col = 0; col < 2; col++) {
+			for (int row = 0; row < 2; row++) {
+				array[i] = matrix[row][col];
+			}
+		}
+	}
+
+	void Matrix2D::getRowMajor(float array[4]) {
+		int i = 0;
+		for (int row = 0; row < 2; row++) {
+			for (int col = 0; col < 2; col++) {
+				array[i] = matrix[row][col];
+			}
+		}
 	}
