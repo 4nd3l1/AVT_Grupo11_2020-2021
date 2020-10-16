@@ -422,7 +422,7 @@ void Matrix3D::getColMajor(float array[9]) {
 	int i = 0;
 	for (int col = 0; col < 3; col++) {
 		for (int row = 0; row < 3; row++) {
-			array[i] = matrix[row][col];
+			array[i++] = matrix[row][col];
 		}
 	}
 }
@@ -431,7 +431,7 @@ void Matrix3D::getRowMajor(float array[9]) {
 	int i = 0;
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
-			array[i] = matrix[row][col];
+			array[i++] = matrix[row][col];
 		}
 	}
 }

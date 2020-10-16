@@ -363,7 +363,7 @@ float Matrix2D::determinant() {
 		int i = 0;
 		for (int col = 0; col < 2; col++) {
 			for (int row = 0; row < 2; row++) {
-				array[i] = matrix[row][col];
+				array[i++] = matrix[row][col];
 			}
 		}
 	}
@@ -372,7 +372,7 @@ float Matrix2D::determinant() {
 		int i = 0;
 		for (int row = 0; row < 2; row++) {
 			for (int col = 0; col < 2; col++) {
-				array[i] = matrix[row][col];
+				array[i++] = matrix[row][col];
 			}
 		}
 	}

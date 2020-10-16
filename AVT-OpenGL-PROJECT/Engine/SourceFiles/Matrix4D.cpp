@@ -544,7 +544,7 @@ Matrix4D Matrix4D::adjoint() {
 		int i = 0;
 		for (int col = 0; col < 4; col++) {
 			for (int row = 0; row < 4; row++) {
-				array[i] = matrix[row][col];
+				array[i++] = matrix[row][col];
 			}
 		}
 	}
@@ -553,7 +553,7 @@ Matrix4D Matrix4D::adjoint() {
 		int i = 0;
 		for (int row = 0; row < 4; row++) {
 			for (int col = 0; col < 4; col++) {
-				array[i] = matrix[row][col];
+				array[i++] = matrix[row][col];
 			}
 		}
 	}
