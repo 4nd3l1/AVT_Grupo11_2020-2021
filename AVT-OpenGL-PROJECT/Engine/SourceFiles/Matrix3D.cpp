@@ -425,7 +425,7 @@ Matrix3D Matrix3D::dual(Vector3D& vec) {
 	return Matrix3D(new float[3][3]{ {0,-vec.getZ(),vec.getY()},{vec.getZ(),0,-vec.getX()},{-vec.getY(),vec.getX(),0} });
 }
 
-void Matrix3D::getRowMajor(float* arr) {
+void Matrix3D::getRowMajor(GLfloat* arr) {
 	int index = 0;
 	for (int row = 0; row < 3; row++) {
 		for (int col = 0; col < 3; col++) {
@@ -434,11 +434,21 @@ void Matrix3D::getRowMajor(float* arr) {
 	}
 }
 
-void Matrix3D::getColMajor(float* arr) {
+void Matrix3D::getColMajor(GLfloat* arr) {
 	int index = 0;
 	for (int col = 0; col < 3; col++) {
 		for (int row = 0; row < 3; row++) {
 			arr[index++] = matrix[row][col];
 		}
 	}
+}
+
+Matrix3D Matrix3D::AditiveIdentity() {
+	float f = 0;
+	return Matrix3D(f);
+}
+
+Matrix3D Matrix3D::MultiplicativeIdentity() {
+	float f = 1;
+	return Matrix3D(f);
 }

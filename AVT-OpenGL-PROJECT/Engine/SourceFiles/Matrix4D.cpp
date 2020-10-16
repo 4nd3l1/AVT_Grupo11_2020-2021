@@ -563,4 +563,14 @@ Matrix4D Matrix4D::adjoint() {
 			}
 		}
 	}
+
+	Matrix4D Matrix4D::AditiveIdentity() {
+		float f = 0;
+		return Matrix4D(f);
+	}
+
+	Matrix4D Matrix4D::MultiplicativeIdentity() {
+		float f = 1;
+		return Matrix4D(f);
+	}
 	

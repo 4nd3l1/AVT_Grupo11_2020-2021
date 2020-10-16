@@ -229,6 +229,14 @@ public:
 	// Returns the matrix in RowMajor format
 
 	void getRowMajor(float array[16]);
+
+	// Returns the aditive identity matrix
+
+	static Matrix4D AditiveIdentity();
+
+	// Returns the multiplicative identity matrix
+
+	static Matrix4D MultiplicativeIdentity();
 };
 
 

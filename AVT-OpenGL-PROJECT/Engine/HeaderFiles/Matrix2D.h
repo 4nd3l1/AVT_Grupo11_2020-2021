@@ -191,6 +191,14 @@ public:
 
 	static Matrix2D identity();
 
+	// Returns the aditive identity matrix
+
+	static Matrix2D AditiveIdentity();
+
+	// Returns the multiplicative identity matrix
+
+	static Matrix2D MultiplicativeIdentity();
+
 	// Returns the matrix in ColMajor format
 
 	void getColMajor(float array[4]);

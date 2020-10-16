@@ -378,3 +378,13 @@ float Matrix2D::determinant() {
 			}
 		}
 	}
+
+	Matrix2D Matrix2D::AditiveIdentity(){
+		float f = 0;
+		return Matrix2D(f);
+	}
+
+	Matrix2D Matrix2D::MultiplicativeIdentity() {
+		float f = 1;
+		return Matrix2D(f);
+	}

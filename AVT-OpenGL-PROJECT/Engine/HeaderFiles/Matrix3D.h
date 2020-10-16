@@ -207,11 +207,19 @@ class Matrix3D {
 
 		// Returns the matrix in ColMajor format
 
-		void getColMajor(float* arr);
+		void getColMajor(GLfloat* arr);
 
 		// Returns the matrix in RowMajor format
 
-		void getRowMajor(float* arr);
+		void getRowMajor(GLfloat* arr);
+
+		// Returns the aditive identity matrix
+
+		static Matrix3D AditiveIdentity();
+
+		// Returns the multiplicative identity matrix
+
+		static Matrix3D MultiplicativeIdentity();
 };
 
 

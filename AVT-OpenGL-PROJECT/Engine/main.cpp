@@ -355,24 +355,21 @@ void challenge() {
 
 	std::cout << "(N)-1 :   " << (N.inverse()) << "\n";
 
-
-	float arrayM[9];
-	std::cout << (arrayM) << "\n";
+	std::cout << "M (CMF) : ";
+	GLfloat arrayM[9] = {0,0,0,0,0,0,0,0,0} ;
 	M.getColMajor(arrayM);
+	for (int i = 0; i < 9; i++) {
+		std::cout << arrayM[i] << " ";
+	}
+	std::cout << "\n";
 
-	
-
-
-	//for (int i = 0; i < 9; i++)
-	//	std::cout << arrayM[i] << " ";
-	//std::cout << "\n";
-
-	//float arrayN[9];
-	//M.getColMajor(arrayN);
-
-	//for (int i = 0; i < 9; i++)
-	//	std::cout << arrayN[i] << " ";
-	//std::cout << "\n";
+	std::cout << "N (CMF) : ";
+	GLfloat arrayN[9] = { 0,0,0,0,0,0,0,0,0 };
+	N.getColMajor(arrayN);
+	for (int i = 0; i < 9; i++) {
+		std::cout << arrayN[i] << " ";
+	}
+	std::cout << "\n";
 
 
 
