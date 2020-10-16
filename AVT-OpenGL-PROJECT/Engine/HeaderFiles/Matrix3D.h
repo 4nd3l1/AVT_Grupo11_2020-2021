@@ -7,6 +7,9 @@
 
 #include<iostream>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 class Vector3D;
 class Matrix2D;
 class Matrix4D;
@@ -204,11 +207,11 @@ class Matrix3D {
 
 		// Returns the matrix in ColMajor format
 
-		void getColMajor(float array[9]);
+		void getColMajor(float* arr);
 
 		// Returns the matrix in RowMajor format
 
-		void getRowMajor(float array[9]);
+		void getRowMajor(float* arr);
 };
 
 

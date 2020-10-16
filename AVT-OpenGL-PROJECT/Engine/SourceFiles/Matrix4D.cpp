@@ -21,6 +21,9 @@ Matrix4D::Matrix4D(float val) {
 	}
 }
 
+
+
+
 Matrix4D::Matrix4D(float mat[4][4]) {
 	for (int row = 0; row < 4; row++) {
 		for (int col = 0; col < 4; col++) {
@@ -28,6 +31,9 @@ Matrix4D::Matrix4D(float mat[4][4]) {
 		}
 	}
 }
+
+
+
 
 Matrix4D::Matrix4D(Matrix2D& mat) {
 	for (int row = 0; row < 4; row++) {

@@ -243,28 +243,173 @@ void vectorsMenu() {
 }
 
 
+// CHALLENGE
+
+void challenge() {
+	
+	float randomBetween; 
+	float matrix4[4][4] = { {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0} };
+	float matrix3[3][3] = { {0,0,0}, {0,0,0}, {0,0,0} };
+	float matrix2[2][2] = { {0,0}, {0,0} };
+	
+	Matrix2D mat21;
+	Matrix2D mat22;
+	Matrix3D mat31;
+	Matrix3D mat32;
+	Matrix4D mat41;
+	Matrix4D mat42;
+
+	// EXERCICIO 1
+	std::cout << "Exercico 1 " << "\n";
+	for (int row = 0; row < 4; row++) {
+		for (int col = 0; col < 4; col++) {
+			randomBetween = rand() % (10 - (-10)) + 10;
+			matrix4[row][col] = randomBetween;
+		}
+	}
+
+	mat41 = matrix4;
+
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			randomBetween = rand() % (10 - (-10)) + 10;
+			matrix3[row][col] = randomBetween;
+		}
+	}
+
+	mat31 = matrix3;
+
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			randomBetween = rand() % (10 - (-10)) + 10;
+			matrix2[row][col] = randomBetween;
+		}
+	}
+
+	mat21 = matrix2;
+
+	for (int row = 0; row < 4; row++) {
+		for (int col = 0; col < 4; col++) {
+			randomBetween = rand() % (10 - (-10)) + 10;
+			matrix4[row][col] = randomBetween;
+		}
+	}
+
+	mat42 = matrix4;
+
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			randomBetween = rand() % (10 - (-10)) + 10;
+			matrix3[row][col] = randomBetween;
+		}
+	}
+
+	mat32 = matrix3;
+
+	for (int row = 0; row < 2; row++) {
+		for (int col = 0; col < 2; col++) {
+			randomBetween = rand() % (10 - (-10)) + 10;
+			matrix2[row][col] = randomBetween;
+		}
+	}
+
+	mat22 = matrix2;
+
+	std::cout << "Matrix2D A: " << mat21 << "\n";
+	std::cout << "Matrix2D B: " << mat22 << "\n";
+
+	std::cout << "Matrix3D A: " << mat31 << "\n";
+	std::cout << "Matrix3D B: " << mat32 << "\n";
+
+	std::cout << "Matrix4D A: " << mat41 << "\n";
+	std::cout << "Matrix4D B: " << mat42 << "\n";
+
+
+	std::cout << "Matrix2D:   (A*B)T = BT*AT :       " << (((mat21 * mat22).transposed()) == ((mat22.transposed()) * (mat21.transposed()))) << "\n";
+	std::cout << "Matrix2D:   (A*B)-1 = ((B)-1)*((A)-1) :       " << (((mat21 * mat22).inverse()) == ((mat22.inverse()) * (mat21.inverse()))) << "\n";
+
+	std::cout << "Matrix3D:   (A*B)T = BT*AT :       " << (((mat31 * mat32).transposed()) == ((mat32.transposed()) * (mat31.transposed()))) << "\n";
+	std::cout << "Matrix3D:   (A*B)-1 = ((B)-1)*((A)-1) :       " << (((mat31 * mat32).inverse()) == ((mat32.inverse()) * (mat31.inverse()))) << "\n";
+
+	std::cout << "Matrix4D:   (A*B)T = BT*AT :       " << (((mat41 * mat42).transposed()) == ((mat42.transposed()) * (mat41.transposed()))) << "\n";
+
+
+
+
+	// EXERCICIO 2
+
+	std::cout << "\n\n" << "Exercico 2 " << "\n";
+	Matrix3D M (new float[3][3] { {2,3,1}, {3,4,1}, {3,7,2} });
+	Matrix3D N (new float[3][3]{ {1,0,0}, {0,0,-2}, {-5,0,9} });
+
+	std::cout << "(M)T :    " << (M.transposed()) << "\n";
+
+	std::cout << "(N)T :    " << (N.transposed()) << "\n";
+
+	std::cout << "|M| :    " << (M.determinant()) << "\n";
+
+	std::cout << "|N| :    " << (N.determinant()) << "\n";
+
+
+	std::cout << "(M)-1 :   " << (M.inverse()) << "\n";
+
+	std::cout << "(N)-1 :   " << (N.inverse()) << "\n";
+
+
+	float arrayM[9];
+	std::cout << (arrayM) << "\n";
+	M.getColMajor(arrayM);
+
+	
+
+
+	//for (int i = 0; i < 9; i++)
+	//	std::cout << arrayM[i] << " ";
+	//std::cout << "\n";
+
+	//float arrayN[9];
+	//M.getColMajor(arrayN);
+
+	//for (int i = 0; i < 9; i++)
+	//	std::cout << arrayN[i] << " ";
+	//std::cout << "\n";
+
+
+
+	// EXERCICIO 3
+
+	std::cout << "\n\n" << "Exercico 3 " << "\n";
+	float PI = atan(1) * 4;
+	Matrix4D T = Matrix4D::translation(4, 5, 6);
+	Matrix4D S = Matrix4D::scaling(4, 5, 6);
+	Matrix4D R = Matrix4D::rotationZ(34, false);
+	Matrix4D Tr(new float[4][4]{ {1,0,0,4}, { 0,1,0,5 }, { 0,0,1,6 }, { 0,0,0,1 } });
+	Matrix4D Sr(new float[4][4]{ {4,0,0,0}, { 0,5,0,0 }, { 0,0,6,0 }, { 0,0,0,1 } });
+	Matrix4D Rr(new float[4][4]{ {cos(34 * (PI / 180)),-sin(34 * (PI / 180)),0,0}, { sin(34 * (PI / 180)),cos(34 * (PI / 180)),0,0 }, { 0,0,1,0 }, { 0,0,0,1 } });
+	std::cout << "T: " << T << "\n";
+	std::cout << "S: " << S << "\n";
+	std::cout << "R: " << R << "\n";
+	std::cout << "Tr: " << Tr << "\n";
+	std::cout << "Sr: " << Sr << "\n";
+	std::cout << "Rr: " << Rr << "\n";
+	std::cout << "T == Tr: " << (T == Tr) << "\n";
+	std::cout << "S == Sr: " << (S == Sr) << "\n";
+	std::cout << "R == Rr: " << (R == Rr) << "\n";
+}
+
+
 int main(int argc, char* argv[])
 {
 	int gl_major = 4, gl_minor = 3;
 	int is_fullscreen = 0;
 	int is_vsync = 1;
 
-	/* Challenge #1
-	std::cout << "2.1 - " << Vector3D(1.5, 3.2, 0.8).rodriguesRot(Vector3D(8, 2, 0), 24).toString() << "\n";
-	std::cout << "2.2 - " << Vector3D(0.5, 1.0, 1.0).rodriguesRot(Vector3D(8, 2, 0), 0).toString() << "\n";
+	// Challenge 2
+	challenge();
 
-	Vector3D v38(1.0, 2.0, 3.0);
-	Vector3D v39(0.1, 0.2, 0.3);
-	Vector3D v40(0.1, 0.2, 0.3);
-	Vector3D v41(1.0, 2.0, 3.0);
-	Vector3D v42(1.1, 2.2, 3.3);
-	Vector3D v43(0.1, 0.2, 0.3);
-	Vector3D v45 = v39 * 10;	
-	Vector3D v46(-0.9, -1.79, -2.7);
-	std::cout << "3.1 - " << (v38 == v45) << "\n";
-	std::cout << "3.2 - " << ((v40 + v41) == v42) << "\n";
-	std::cout << "3.1 - " << ((v43 - v41) != v46) << "\n";
-*/
+
+
+/*
 
 
 	std::cout << "=====================MATRIX 3x3=====================\n";
@@ -727,6 +872,8 @@ int main(int argc, char* argv[])
 	std::cout << "=====================MATRIX 4x4=====================\n\n\n";
 
 
+
+	*/
 
 
 	exit(EXIT_SUCCESS);

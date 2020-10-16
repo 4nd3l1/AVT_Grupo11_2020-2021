@@ -6,6 +6,9 @@
 #include <cassert>
 #include "../HeaderFiles/Matrix2D.h"
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 // Matrix 3 Constructors
 Matrix3D::Matrix3D() {
 }
@@ -405,9 +408,13 @@ Matrix3D Matrix3D::adjoint() {
 
 Matrix3D Matrix3D::inverse() {
 	float det = determinant();
-	assert(det != 0);
-
-	return adjoint() / determinant();
+	if(det == 0){
+		std::cout << "Error: The matrix is not inversible!" << "\n";
+		return *this;
+	}
+	else{
+		return adjoint() / determinant();
+	}
 }
 
 Matrix3D Matrix3D::identity() {
@@ -418,20 +425,20 @@ Matrix3D Matrix3D::dual(Vector3D& vec) {
 	return Matrix3D(new float[3][3]{ {0,-vec.getZ(),vec.getY()},{vec.getZ(),0,-vec.getX()},{-vec.getY(),vec.getX(),0} });
 }
 
-void Matrix3D::getColMajor(float array[9]) {
-	int i = 0;
-	for (int col = 0; col < 3; col++) {
-		for (int row = 0; row < 3; row++) {
-			array[i++] = matrix[row][col];
+void Matrix3D::getRowMajor(float* arr) {
+	int index = 0;
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			arr[index++] = matrix[row][col];
 		}
 	}
 }
 
-void Matrix3D::getRowMajor(float array[9]) {
-	int i = 0;
-	for (int row = 0; row < 3; row++) {
-		for (int col = 0; col < 3; col++) {
-			array[i++] = matrix[row][col];
+void Matrix3D::getColMajor(float* arr) {
+	int index = 0;
+	for (int col = 0; col < 3; col++) {
+		for (int row = 0; row < 3; row++) {
+			arr[index++] = matrix[row][col];
 		}
 	}
 }
