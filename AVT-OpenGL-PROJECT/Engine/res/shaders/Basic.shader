@@ -17,8 +17,6 @@ void main()
 in vec3 ourColor;
 out vec4 colour;
 
-uniform vec4 cc;
-
 void main() 
 {
 	colour = vec4(ourColor, 1.0f);
