@@ -45,6 +45,15 @@
     <ClCompile Include="Engine\SourceFiles\IndexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\SourceFiles\VertexArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\SourceFiles\VertexBufferLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\SourceFiles\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\HeaderFiles\Vector3D.h">
@@ -68,10 +77,19 @@
     <ClInclude Include="Engine\HeaderFiles\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\HeaderFiles\IndexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\HeaderFiles\VertexArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\HeaderFiles\VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\HeaderFiles\IndexBuffer.h">
+    <ClInclude Include="Engine\HeaderFiles\VertexBufferLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\HeaderFiles\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
