@@ -40,13 +40,13 @@ int main(int argc, char* argv[])
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	float sq[] = {
-			-0.605f,  -0.48f,
-			-0.54f,  -0.605f,
-			0.01f, 0.58f,
-		    0.01f, 0.34f,
-			0.56f, -0.37f,
-			0.42f, -0.37f
+	float pol_red[] = {
+			-0.605f,  -0.48f, 0.0f, 0.0f, 0.0f, 
+			-0.54f,  -0.605f, 0.0f, 0.0f, 0.0f,
+			0.01f, 0.58f, 1.0f, 0.0f, 0.0f,
+		    0.01f, 0.34f, 1.0f, 0.0f, 0.0f,
+			0.56f, -0.37f, 0.0f, 0.0f, 0.0f,
+			0.42f, -0.37f, 0.0f, 0.0f, 0.0f,
 			
 	};
 
@@ -61,10 +61,11 @@ int main(int argc, char* argv[])
 
 	//Generate a vertex array and buffer and binding them
 	VertexArray va;
-	VertexBuffer vb (sq, 6 * 3 * sizeof(GLuint));
+	VertexBuffer vb (pol_red, 6 * 5 * sizeof(GLuint));
 
 	VertexBufferLayout layout;
 	layout.Push<float>(2);
+	layout.Push<float>(3);
 	va.AddBuffer(vb, layout);
 
 	//Generate an index buffer
