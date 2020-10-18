@@ -146,20 +146,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\main.cpp" />
+    <ClCompile Include="Engine\SourceFiles\IndexBuffer.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix2D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix3D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix4D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector2D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector3D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector4D.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Renderer.cpp" />
+    <ClCompile Include="Engine\SourceFiles\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\HeaderFiles\IndexBuffer.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix2D.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix3D.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix4D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector2D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector3D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector4D.h" />
+    <ClInclude Include="Engine\HeaderFiles\Renderer.h" />
+    <ClInclude Include="Engine\HeaderFiles\VertexBuffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Engine\res\shaders\Basic.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
