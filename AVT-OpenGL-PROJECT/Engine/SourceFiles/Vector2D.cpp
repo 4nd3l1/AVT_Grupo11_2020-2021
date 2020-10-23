@@ -132,8 +132,8 @@ void Vector2D::normalize()
 
 	double l = length();
 	assert(length() != 0);
-		x /= l;
-		y /= l;
+		x /= (float)l;
+		y /= (float)l;
 }
 
 //toString

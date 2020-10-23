@@ -433,9 +433,9 @@ Matrix4D Matrix4D::adjoint() {
 
 	Matrix4D Matrix4D::rotation(float sx, float sy, float sz, bool radians, bool round) {
 		if (!radians) { // Convert to radians
-			sx = sx * PI / 180.0;
-			sy = sy * PI / 180.0;
-			sz = sz * PI / 180.0;
+			sx = sx * (float)PI / 180.0f;
+			sy = sy * (float)PI / 180.0f;
+			sz = sz * (float)PI / 180.0f;
 		}
 
 		float cosG = cos(sx);
@@ -477,7 +477,7 @@ Matrix4D Matrix4D::adjoint() {
 
 	Matrix4D Matrix4D::rotationX(float ang, bool radians, bool round) {
 		if (!radians) { // Convert to radians
-			ang = ang * PI / 180.0;
+			ang = ang * (float)PI / 180.0f;
 		}
 
 		float cosAng = cos(ang);
@@ -501,7 +501,7 @@ Matrix4D Matrix4D::adjoint() {
 
 	Matrix4D Matrix4D::rotationY(float ang, bool radians, bool round) {
 		if (!radians) { // Convert to radians
-			ang = ang * PI / 180.0;
+			ang = ang * (float)PI / 180.0f;
 		}
 
 		float cosAng = cos(ang);
@@ -525,7 +525,7 @@ Matrix4D Matrix4D::adjoint() {
 
 	Matrix4D Matrix4D::rotationZ(float ang, bool radians, bool round) {
 		if (!radians) { // Convert to radians
-			ang = ang * PI / 180.0;
+			ang = ang * (float)PI / 180.0f;
 		}
 		float cosAng = cos(ang);
 		float sinAng = sin(ang);

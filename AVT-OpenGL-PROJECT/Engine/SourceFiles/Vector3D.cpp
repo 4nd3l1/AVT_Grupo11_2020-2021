@@ -153,9 +153,9 @@ void Vector3D::normalize()
 {
 	double l = length();
 	assert(length() != 0);
-		x /= l;
-		y /= l;
-		z /= l;
+		x /= (float)l;
+		y /= (float)l;
+		z /= (float)l;
 }
 
 //toString
@@ -189,10 +189,10 @@ Vector3D Vector3D::invert()
 
 Vector3D Vector3D::rodriguesRot(Vector3D k, float angle) {
 	k.normalize();
-	angle *= ( M_PI / 180);
-	Vector3D v1 = *this * cos(angle);
-	Vector3D v2 = k.cross(*this) * sin(angle);
+	angle *= ((float)M_PI / 180.0f);
+	Vector3D v1 = *this * (float)cos(angle);
+	Vector3D v2 = k.cross(*this) * (float)sin(angle);
 	float v3 = k.dot(*this);
-	Vector3D v4 = v3 * k * (1 - cos(angle));
+	Vector3D v4 = v3 * k * (float)(1 - cos(angle));
 	return v1 + v2 + v4;
 };

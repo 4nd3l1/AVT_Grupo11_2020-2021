@@ -168,10 +168,10 @@ void Vector4D::normalize()
 {
 	double l = length();
 	assert(length() != 0);
-		x /= l;
-		y /= l;
-		z /= l;
-		w /= l;
+		x /= (float)l;
+		y /= (float)l;
+		z /= (float)l;
+		w /= (float)l;
 }
 
 //toString
