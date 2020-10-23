@@ -412,7 +412,7 @@ Matrix4D Matrix4D::adjoint() {
 	}
 
 	Matrix4D Matrix4D::identity() {
-		return Matrix4D(new float[4][4]{ {1,0,0},{0,1,0},{0,0,1} });
+		return Matrix4D(new float[4][4]{ {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1} });
 	}
 
 	Matrix4D Matrix4D::scaling(float sx, float sy, float sz) {

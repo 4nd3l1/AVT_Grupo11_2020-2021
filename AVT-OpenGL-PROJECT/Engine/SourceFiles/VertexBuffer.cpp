@@ -24,3 +24,8 @@ void VertexBuffer::Unbind() const
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 }
+
+void VertexBuffer::SubBufferData(GLintptr offset, GLuint size, const void* data)
+{
+	GLCall(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
+}

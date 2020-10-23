@@ -11,5 +11,7 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	void SubBufferData(GLintptr offset, GLuint size, const void* data);
+
 };
 
