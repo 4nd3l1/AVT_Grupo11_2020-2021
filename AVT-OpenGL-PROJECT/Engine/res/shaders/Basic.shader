@@ -9,7 +9,7 @@ uniform mat4 Matrix;
 
 void main() 
 {
-  gl_Position = Matrix * position;
+  gl_Position = position * Matrix;
   ourColor = aColor;
 };
 

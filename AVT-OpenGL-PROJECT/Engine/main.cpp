@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
 	GLfloat pol[] = {
 		-0.605f, -0.48f, 0.5f, 0.0f, 0.0f, 0.0f,
-		-0.54f, -0.605f, 0.5f, 0.0f, 0.0f, 0.0f,
+		- 0.54f, -0.605f, 0.5f, 0.0f, 0.0f, 0.0f,
 		0.01f, 0.58f, 1.0f, 0.0f, 0.0f, 0.0f,
 		0.01f, 0.34f, 1.0f, 0.0f, 0.0f, 0.0f,
 		0.56f, -0.37f, 0.5f, 0.0f, 0.0f, 0.0f,
@@ -118,8 +118,7 @@ int main(int argc, char* argv[])
 	{
 		renderer.clear();
 
-		GLfloat arr[16];
-		id.getRowMajor(arr);
+		
 		GLfloat red1[4] = { 0.5f, 0.0f, 0.0f, 0.0f };
 		GLfloat red2[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
 		vb.Bind();
@@ -130,11 +129,12 @@ int main(int argc, char* argv[])
 		vb.SubBufferData(26 * sizeof(GLfloat), 4 * sizeof(float), red1);
 		vb.SubBufferData(32 * sizeof(GLfloat), 4 * sizeof(float), red1);
 		shader.Bind();
+		GLfloat arr[16];
+		id.getRowMajor(arr);
 		shader.SetUniform4fv("Matrix", arr);
 		renderer.Draw(va, ib, shader);
 
-		GLfloat arr1[16];
-		m_modal_1.getRowMajor(arr1);
+		
 		GLfloat green1[4] = {0.0f, 0.5f, 0.0f, 0.0f};
 		GLfloat green2[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 		vb.Bind();
@@ -145,11 +145,12 @@ int main(int argc, char* argv[])
 		vb.SubBufferData(26 * sizeof(GLfloat), 4 * sizeof(float), green1);
 		vb.SubBufferData(32 * sizeof(GLfloat), 4 * sizeof(float), green1);
 		shader.Bind();
+		GLfloat arr1[16];
+		m_modal_1.getRowMajor(arr1);
 		shader.SetUniform4fv("Matrix", arr1);
 		renderer.Draw(va, ib, shader);
 
-		GLfloat arr2[16];
-		m_modal_2.getRowMajor(arr2);
+		
 		GLfloat blue1[4] = { 0.0f, 0.0f, 0.5f, 0.0f };
 		GLfloat blue2[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
 		vb.Bind();
@@ -160,6 +161,8 @@ int main(int argc, char* argv[])
 		vb.SubBufferData(26 * sizeof(GLfloat), 4 * sizeof(float), blue1);
 		vb.SubBufferData(32 * sizeof(GLfloat), 4 * sizeof(float), blue1);
 		shader.Bind();
+		GLfloat arr2[16];
+		m_modal_2.getRowMajor(arr2);
 		shader.SetUniform4fv("Matrix", arr2);
 		renderer.Draw(va, ib, shader);
 	
