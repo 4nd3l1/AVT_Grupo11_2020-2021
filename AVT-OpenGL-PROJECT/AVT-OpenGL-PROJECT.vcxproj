@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\main.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Camera.cpp" />
     <ClCompile Include="Engine\SourceFiles\IndexBuffer.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix2D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix3D.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Engine\SourceFiles\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\HeaderFiles\Camera.h" />
     <ClInclude Include="Engine\HeaderFiles\IndexBuffer.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix2D.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix3D.h" />

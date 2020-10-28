@@ -41,17 +41,17 @@ public:
     
     // Operador responsável por igual um vetor à soma dele próprio com um outro
     
-    Vector3D& operator+=(Vector3D& component);
+    Vector3D& operator+=(const Vector3D& component);
 
     
     // Operador responsável por somar dois vetores
     
-    Vector3D operator+(Vector3D& component);
+    Vector3D operator+(const Vector3D& component);
 
     
     // Operador responsável por igual um vetor à subtração dele próprio com um outro
     
-    Vector3D& operator-=(Vector3D& component);
+    Vector3D& operator-=(const Vector3D& component);
 
 
     

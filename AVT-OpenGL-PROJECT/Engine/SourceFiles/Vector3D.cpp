@@ -45,7 +45,7 @@ void Vector3D::setZ(float _z) {
 
 //Vector3D Operations
 
-Vector3D Vector3D::operator+(Vector3D& operand)
+Vector3D Vector3D::operator+(const Vector3D& operand)
 {
 	return Vector3D(x + operand.x, y + operand.y, z + operand.z);
 }
@@ -88,7 +88,7 @@ Vector3D& Vector3D::operator=(const Vector3D& operand)
 	return *this;
 }
 
-Vector3D& Vector3D::operator+=(Vector3D& operand)
+Vector3D& Vector3D::operator+=(const Vector3D& operand)
 {
 	x += operand.x;
 	y += operand.y;
@@ -96,7 +96,7 @@ Vector3D& Vector3D::operator+=(Vector3D& operand)
 	return *this;
 }
 
-Vector3D& Vector3D::operator-=(Vector3D& operand)
+Vector3D& Vector3D::operator-=(const Vector3D& operand)
 {
 	x -= operand.x;
 	y -= operand.y;
