@@ -158,7 +158,7 @@ public:
 	 * @param xOffset - How much we want to move the camera from down to up
 	 * @param sensitivity - How much we want to rotate the camera
 	 ***********************************************/
-	void rotateCamera(float xOffset, float yOffset, float sensitivity = 0.1f);
+	void rotateCamera(float xOffset, float yOffset, float sensitivity = 0.5f);
 
 	/********************************************/ /**
 	 * Inverts the camera by inverting the signs of all of the eye's coordinates

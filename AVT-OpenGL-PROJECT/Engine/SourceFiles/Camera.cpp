@@ -124,45 +124,6 @@ const Matrix4D Camera::getPerspProj() {
 	return perspProj;
 }
 
-const Matrix4D Camera::getOrthVP()
-{
-	return orthoProj * view;
-}
-
-const Matrix4D Camera::getPerspVP()
-{
-	return perspProj * view;
-}
-
-
-void Camera::moveCamera(int move, float speed)
-{
-	
-	switch (move) {
-		case 0:
-			cameraEye += speed * cameraDirection;
-			break;
-		case 1:
-			cameraEye -= speed * cameraDirection;
-			break;
-		case 2: {
-			Vector3D vec = cameraDirection.cross(cameraUp);
-			vec.normalize();
-			cameraEye -= vec * speed;
-			break;
-		}
-			
-		case 3: {
-			Vector3D vec1 = cameraDirection.cross(cameraUp);
-			vec1.normalize();
-			cameraEye += vec1 * speed;
-			break;
-		}
-	}
-
-	setViewMatrix(cameraEye, cameraEye + cameraDirection, cameraUp);
-}
-
 void Camera::moveCameraForward(float speed) {
 	cameraEye += speed * cameraDirection;
 	setViewMatrix(cameraEye, cameraEye + cameraDirection, cameraUp);

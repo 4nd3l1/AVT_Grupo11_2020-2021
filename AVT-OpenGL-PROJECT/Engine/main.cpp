@@ -224,12 +224,6 @@ int main(int argc, char* argv[])
 	setupCamera();
 
 	//RED PART POSITIONS
-	Vector2D v0(-0.605f, -0.48f);
-	Vector2D v1(-0.54f, -0.605f);
-	Vector2D v2(0.01f, 0.58f);
-	Vector2D v3(0.01f, 0.34f);
-	Vector2D v4(0.56f, -0.37f);
-	Vector2D v5(0.42f, -0.37f);
 
 	GLfloat pol_red[] = {
 		-0.605f, -0.48f, 0.5f, 0.0f, 0.0f, 0.0f,
@@ -295,7 +289,7 @@ int main(int argc, char* argv[])
 
 	//Generate a vertex buffer - RED PART
 	VertexArray va;
-	VertexBuffer vb (pol_red, 6 * 6 * sizeof(GLuint));
+	VertexBuffer vb (pol_red, 6 * 6 * sizeof(GLfloat));
 	va.AddBuffer(vb, layout);
 
 
@@ -316,6 +310,13 @@ int main(int argc, char* argv[])
 
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
+
+	if (lockMouse) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //Tell GLFW that it should hide the cursorand capture it.Capturing a cursor means that, once the application has focus, the mouse cursor stays within the center of the window(unless the application loses focus or quits)
+	}
+	else {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
