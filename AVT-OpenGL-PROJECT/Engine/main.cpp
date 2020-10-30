@@ -53,24 +53,24 @@ void mouse_keyboard_input() {
 	}
 
 	if (forwardKeyPressed) {
-		camera.moveCameraForward(0.05f);
+		camera.moveCameraForward(0.03f);
 	}
 	if (backwardKeyPressed) {
-		camera.moveCameraBackward(0.05f);
+		camera.moveCameraBackward(0.03f);
 	}
 	if (leftKeyPressed) {
-		camera.moveCameraLeft(0.05f);
+		camera.moveCameraLeft(0.03f);
 	}
 	if (rightKeyPressed) {
-		camera.moveCameraRight(0.05f);
+		camera.moveCameraRight(0.03f);
 	}
 
 	if (upKeyPressed) {
-		camera.moveCameraUp(0.05f);
+		camera.moveCameraUp(0.03f);
 	}
 
 	if (downKeyPressed) {
-		camera.moveCameraDown(0.05f);
+		camera.moveCameraDown(0.03f);
 	}
 }
 
