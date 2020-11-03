@@ -13,9 +13,6 @@
 #include "HeaderFiles/IndexBuffer.h"
 #include "HeaderFiles/VertexArray.h"
 #include "HeaderFiles/Shader.h"
-#include "HeaderFiles/Vector2D.h"
-#include "HeaderFiles/Vector3D.h"
-#include "HeaderFiles/Vector4D.h"
 #include "HeaderFiles/Matrix4D.h"
 #include "HeaderFiles/Camera.h"
 
@@ -42,10 +39,61 @@ bool lockMouse = true;
 bool firstMouse = true;
 bool mouseMoved = false;
 
+bool quaternionRotation = false;
+bool cameraReset = false;
+bool stopRotating = false;
+bool automaticRotating = true;
+
 float view[16];
 float proj[16];
 
 ////////////////////////////////////////////////////////////////////////// MAIN
+void move_camera() {
+	if (forwardKeyPressed) {
+		camera.moveCameraForward(0.05f);
+	}
+	if (backwardKeyPressed) {
+		camera.moveCameraBackward(0.05f);
+	}
+
+	// ROTATE CAMERA //
+
+	if (!stopRotating) {
+		if (!quaternionRotation) {
+			if (automaticRotating) {
+				camera.rotateCameraAround(1, { 0.0f, 1.0f, 0.0f, 1.0f });
+				camera.rotateCameraAround(1, { 1.0f, 0.0f, 0.0f, 1.0f });
+				camera.rotateCameraAround(1, { 0.0f, 1.0f, 0.0f, 1.0f });
+				camera.rotateCameraAround(1, { 0.0f, 0.0f, 1.0f, 1.0f });
+			}
+			else
+				if (mouseMoved) {
+					camera.rotateCameraAround(xOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
+					camera.rotateCameraAround(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
+					mouseMoved = false;
+				}
+		}
+		else {
+			if (automaticRotating) {
+				camera.rotateCameraAroundQuaternion(1, { 0.0f, 1.0f, 0.0f, 1.0f });
+				camera.rotateCameraAroundQuaternion(1, { 1.0f, 0.0f, 0.0f, 1.0f });
+				camera.rotateCameraAroundQuaternion(1, { 0.0f, 1.0f, 0.0f, 1.0f });
+				camera.rotateCameraAroundQuaternion(1, { 0.0f, 0.0f, 1.0f, 1.0f });
+			}	
+			else
+				if (mouseMoved) {
+					camera.rotateCameraAroundQuaternion(xOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
+					camera.rotateCameraAroundQuaternion(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
+					mouseMoved = false;
+				}
+		}
+	}
+	// Get the updated view matrix
+	Matrix4D viewM = camera.getViewMatrix();
+	viewM.getRowMajor(view);
+	cameraReset = false;
+}
+
 void mouse_keyboard_input() {
 	if (mouseMoved) {
 		camera.rotateCamera(xOffset, yOffset);
@@ -100,45 +148,70 @@ void setupCamera() {
 
 void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 {
-	std::cout << "key: " << key << " " << scancode << " " << action << " " << mods << std::endl;
-
 	// Key Presses
 	if (action == GLFW_PRESS) {
 		switch (key) {
-		case GLFW_KEY_P:
-			ortho = !ortho;
-			break;
-		case GLFW_KEY_A:
-			leftKeyPressed = true;
-			break;
-		case GLFW_KEY_D:
-			rightKeyPressed = true;
-			break;
-		case GLFW_KEY_W:
-			forwardKeyPressed = true;
-			break;
-		case GLFW_KEY_S:
-			backwardKeyPressed = true;
-			break;
-		case GLFW_KEY_SPACE:
-			upKeyPressed = true;
-			break;
-		case GLFW_KEY_LEFT_CONTROL:
-			downKeyPressed = true;
-			break;
-		case GLFW_KEY_F:
-			lockMouse = !lockMouse;
-			if (lockMouse) {
-				firstMouse = true;
+			case GLFW_KEY_P:
+				ortho = !ortho;
+				if (ortho) {
+					std::cout << "Orthogonal Mode!" << std::endl;
+				}
+				else {
+					std::cout << "Prespective Mode!" << std::endl;
+				}
+				break;
+			case GLFW_KEY_A:
+				leftKeyPressed = true;
+				break;
+			case GLFW_KEY_D:
+				rightKeyPressed = true;
+				break;
+			case GLFW_KEY_W:
+				forwardKeyPressed = true;
+				break;
+			case GLFW_KEY_S:
+				backwardKeyPressed = true;
+				break;
+			case GLFW_KEY_SPACE:
+				upKeyPressed = true;
+				break;
+			case GLFW_KEY_LEFT_CONTROL:
+				downKeyPressed = true;
+				break;
+			case GLFW_KEY_F:
+				lockMouse = !lockMouse;
+				if (lockMouse) {
+					firstMouse = true;
+				}
+				break;
+			case GLFW_KEY_I:
+				camera.invertCamera();
+				break;
+			case GLFW_KEY_R:
+				camera.resetCamera();
+				break;
+			case GLFW_KEY_G: {
+				quaternionRotation = !quaternionRotation;
+				if (quaternionRotation) {
+					std::cout << "Quaternion Rotation Mode!" << std::endl;
+				}
+				else {
+					std::cout << "Euler Rotation Mode!" << std::endl;
+				}
+				break;
+			}	
+			case GLFW_KEY_N: {
+				automaticRotating = !automaticRotating;
+				if (automaticRotating) {
+					std::cout << "Auto Rotation Mode!" << std::endl;
+				}
+				else {
+					std::cout << "Mouse Rotation Mode!" << std::endl;
+				}
+				break;
 			}
-			break;
-		case GLFW_KEY_I:
-			camera.invertCamera();
-			break;
-		case GLFW_KEY_R:
-			camera.resetCamera();
-			break;
 		}
+		
 	}
 	else if (action == GLFW_RELEASE) {
 		switch (key) {
@@ -323,7 +396,9 @@ int main(int argc, char* argv[])
 	{
 		renderer.clear();
 
-		mouse_keyboard_input();
+		//mouse_keyboard_input();
+
+		move_camera();
 
 		set_view_proj();
 

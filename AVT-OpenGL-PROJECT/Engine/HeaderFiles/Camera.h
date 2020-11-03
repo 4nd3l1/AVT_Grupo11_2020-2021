@@ -1,6 +1,7 @@
 #pragma once
 #include "../HeaderFiles/Vector3D.h"
 #include "../HeaderFiles/Matrix4D.h"
+#include "../HeaderFiles/Quaternion.h"
 #include "GL/glew.h"
 
 // CAMERA CLASS HEADER
@@ -169,4 +170,6 @@ public:
 	 * Resets the camera to the values set when constructing the object
 	 ***********************************************/
 	void resetCamera();
+	void rotateCameraAround(float rotationDegree, Vector4D axis_i, Vector3D point = Vector3D(0, 0, 0));
+	void rotateCameraAroundQuaternion(float rotationDegree, Vector4D axis_i, Vector3D point = Vector3D(0, 0, 0));
 };

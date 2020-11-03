@@ -26,7 +26,7 @@ public:
      
     // Operador responsável por comparar dois vetores como iguais
      
-    bool operator==(Vector4D& component);
+    bool operator==(const Vector4D& component);
 
      
     // Operador responsável por igualar dois vetores
@@ -95,6 +95,10 @@ public:
     // Função responsável por normalizar um vetor
      
     void normalize();
+
+    // Função normalize para quaternions
+
+    Vector4D Normalize_Quaternions();
 
      
     // Função responsável por inverter um vetor

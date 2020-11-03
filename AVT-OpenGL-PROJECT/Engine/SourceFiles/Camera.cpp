@@ -209,3 +209,76 @@ void Camera::resetCamera()
 
 	setViewMatrix(initialEye, initialEye + cameraDirection, initialUp);
 }
+
+void Camera::rotateCameraAround(float rotationDegree, Vector4D axis_i, Vector3D point)
+{
+	
+	float rotationRads = rotationDegree * PI / 180.0f;
+
+	Vector3D neg = -point;
+	Vector4D standIn = Vector4D(cameraEye.getX(), cameraEye.getY(), cameraEye.getZ(), 0.0f);;
+	standIn = Matrix4D::translation(neg) * standIn;
+	if (axis_i == Vector4D(1.0f, 0.0f, 0.0f, 1.0f)) {
+		standIn = Matrix4D::rotationX(rotationRads) * standIn;
+	}
+	else if (axis_i == Vector4D(0.0f, 1.0f, 0.0f, 1.0f)) {
+		standIn = Matrix4D::rotationY(rotationRads) * standIn;
+	}
+	else if (axis_i == Vector4D(0.0f, 0.0f, 0.0f, 1.0f)) {
+		standIn = Matrix4D::rotationZ(rotationRads) * standIn;
+	}
+	standIn = Matrix4D::translation(point) * standIn;
+
+	cameraEye = Vector3D(standIn.getX(), standIn.getY(), standIn.getZ());
+
+	// Set direction to look at point
+	Vector3D dir = point - cameraEye;
+	dir.normalize();
+	cameraDirection = dir;
+
+
+	// cameraDirection.Y = sinPitch => pitch = aSin(cameraDirection.Y)
+	pitch = asin(cameraDirection.getY());
+
+	// cameraDirection.X = cosYaw * cosPitch => cosYaw = cameraDirection.X/cosPitch => Yaw = aCos(cameraDirection.X/cosPitch)
+	yaw = acos(cameraDirection.getX() / cos(pitch));
+
+	if (cameraEye.getZ() < 0 && yaw > 0) {
+		yaw = -yaw;
+	}
+
+
+	setViewMatrix(cameraEye, cameraEye + cameraDirection, cameraUp);
+}
+
+void Camera::rotateCameraAroundQuaternion(float rotationDegree, Vector4D axis_i, Vector3D point)
+{
+	float thetai = 45.0f;
+	Quaternion qtr(rotationDegree, axis_i);
+
+	Vector4D vec4(cameraEye.getX(), cameraEye.getY(), cameraEye.getZ(), 1.0f);
+	Vector4D rot = qtr.GLRotationMatrix() * vec4;
+	Vector3D eye_rot(rot.getX(), rot.getY(), rot.getZ());
+
+	cameraEye = eye_rot;
+
+	// Set direction to look at point
+	Vector3D dir = point - cameraEye;
+	dir.normalize();
+	cameraDirection = dir;
+
+
+	// cameraDirection.Y = sinPitch => pitch = aSin(cameraDirection.Y)
+	pitch = asin(cameraDirection.getY());
+
+	// cameraDirection.X = cosYaw * cosPitch => cosYaw = cameraDirection.X/cosPitch => Yaw = aCos(cameraDirection.X/cosPitch)
+	yaw = acos(cameraDirection.getX() / cos(pitch));
+
+	if (cameraEye.getZ() < 0 && yaw > 0) {
+		yaw = -yaw;
+	}
+
+	setViewMatrix(cameraEye, cameraEye + cameraDirection, cameraUp);
+}
+
+

@@ -134,12 +134,12 @@ Vector4D& Vector4D::operator/=(float operand)
 }
 
 //Vector4D Comparators
-bool Vector4D::operator==(Vector4D& vec) {
+bool Vector4D::operator==(const Vector4D& vec) {
 	float epsilon = 0.00005f;
-	if (abs(x - vec.getX()) < epsilon &&
-		abs(y - vec.getY()) < epsilon &&
-		abs(z - vec.getZ()) < epsilon &&
-		abs(w - vec.getW()) < epsilon) {
+	if (abs(x - vec.x) < epsilon &&
+		abs(y - vec.y) < epsilon &&
+		abs(z - vec.z) < epsilon &&
+		abs(w - vec.w) < epsilon) {
 		return true;
 	}
 	return false;
@@ -172,6 +172,17 @@ void Vector4D::normalize()
 		y /= (float)l;
 		z /= (float)l;
 		w /= (float)l;
+}
+
+Vector4D Vector4D::Normalize_Quaternions()
+{
+	Vector4D vn;
+	float s = 1 / (w * sqrt(x * x + y * y + z * z));
+	vn.x = x * s;
+	vn.y = y * s;
+	vn.z = z * s;
+	vn.w = 1.0f;
+	return vn;
 }
 
 //toString
