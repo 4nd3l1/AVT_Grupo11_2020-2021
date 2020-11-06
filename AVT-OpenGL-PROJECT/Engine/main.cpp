@@ -61,7 +61,7 @@ void move_camera() {
 	if (!stopRotating) {
 		if (!quaternionRotation) {
 			if (automaticRotating) {
-				camera.rotateCameraAround(1, { 0.0f, 1.0f, 0.0f, 1.0f });
+				camera.rotateCameraAround(1, { 1.0f, 1.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 1.0f, 0.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 0.0f, 1.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 0.0f, 0.0f, 1.0f, 1.0f });
@@ -75,10 +75,7 @@ void move_camera() {
 		}
 		else {
 			if (automaticRotating) {
-				camera.rotateCameraAroundQuaternion(1, { 0.0f, 1.0f, 0.0f, 1.0f });
-				camera.rotateCameraAroundQuaternion(1, { 1.0f, 0.0f, 0.0f, 1.0f });
-				camera.rotateCameraAroundQuaternion(1, { 0.0f, 1.0f, 0.0f, 1.0f });
-				camera.rotateCameraAroundQuaternion(1, { 0.0f, 0.0f, 1.0f, 1.0f });
+				camera.rotateCameraAroundQuaternion(1, { 1.0f, 1.0f, 1.0f, 1.0f });
 			}	
 			else
 				if (mouseMoved) {
