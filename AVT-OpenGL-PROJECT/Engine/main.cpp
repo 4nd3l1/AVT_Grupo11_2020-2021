@@ -61,14 +61,15 @@ void move_camera() {
 	if (!stopRotating) {
 		if (!quaternionRotation) {
 			if (automaticRotating) {
+				camera.rotateCameraAround(1, { 1.0f, 1.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 1.0f, 0.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 0.0f, 1.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 0.0f, 0.0f, 1.0f, 1.0f });
 			}
 			else
 				if (mouseMoved) {
-					camera.rotateCameraAround(xOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
-					camera.rotateCameraAround(yOffset, { 0.0f, 0.0f, 0.0f, 1.0f });
+					camera.rotateCameraAround(xOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
+					camera.rotateCameraAround(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
 					mouseMoved = false;
 				}
 		}
@@ -78,8 +79,8 @@ void move_camera() {
 			}	
 			else
 				if (mouseMoved) {
-					camera.rotateCameraAroundQuaternion(xOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
-					camera.rotateCameraAroundQuaternion(yOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
+					camera.rotateCameraAroundQuaternion(xOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
+					camera.rotateCameraAroundQuaternion(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
 					mouseMoved = false;
 				}
 		}
