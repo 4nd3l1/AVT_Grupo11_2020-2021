@@ -112,15 +112,15 @@ void Camera::setDirection(float xOffset, float yOffset)
 }
 
 
-const Matrix4D Camera::getViewMatrix() {
+ Matrix4D Camera::getViewMatrix() {
 	return view;
 }
 
-const Matrix4D Camera::getOrthProj() {
+ Matrix4D Camera::getOrthProj() {
 	return orthoProj;
 }
 
-const Matrix4D Camera::getPerspProj() {
+Matrix4D Camera::getPerspProj() {
 	return perspProj;
 }
 

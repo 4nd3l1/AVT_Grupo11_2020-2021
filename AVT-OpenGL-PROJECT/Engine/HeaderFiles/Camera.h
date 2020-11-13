@@ -78,36 +78,23 @@ public:
 	 ***********************************************/
 	void setDirection(float xOffset, float yOffset);
 
-
-	/********************************************/ /**
-	 * Returns the Orthogonal View-Projection matrix (Projection * View)
-	 * @return The matrix resulting from the multiplication of the Orthogonal Projection matrix and the View matrix
-	 ***********************************************/
-	const Matrix4D getOrthVP();
-
-	/********************************************/ /**
-	 * Returns the Perspective View-Projection matrix (Projection * View)
-	 * @return The matrix resulting from the multiplication of the Perspective Projection matrix and the View matrix
-	 ***********************************************/
-	const Matrix4D getPerspVP();
-
 	/********************************************/ /**
 	 * Returns the Orthogonal Projection Matrix
 	 * @return The currently set orthogonal projection matrix
 	 ***********************************************/
-	const Matrix4D getOrthProj();
+	 Matrix4D getOrthProj();
 
 	/********************************************/ /**
 	 * Returns the Perspective Projection Matrix
 	 * @return The currently set perspective projection matrix
 	 ***********************************************/
-	const Matrix4D getPerspProj();
+	Matrix4D getPerspProj();
 
 	/********************************************/ /**
 	 * Returns the View Matrix
 	 * @return The currently set view matrix
 	 ***********************************************/
-	const Matrix4D getViewMatrix();
+	 Matrix4D getViewMatrix();
 
 	/********************************************/ /**
 	 * Moves the camera in the specified direction with the specified speed. Does this by altering the view matrix

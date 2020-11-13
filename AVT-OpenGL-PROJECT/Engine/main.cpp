@@ -1,31 +1,34 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 
 #include <iostream>
-#include <sstream>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <vector>
 
-#include "HeaderFiles/Renderer.h";
-#include "HeaderFiles/VertexBuffer.h"
-#include "HeaderFiles/VertexBufferLayout.h"
-#include "HeaderFiles/IndexBuffer.h"
-#include "HeaderFiles/VertexArray.h"
-#include "HeaderFiles/Shader.h"
-#include "HeaderFiles/Matrix4D.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "HeaderFiles/Camera.h"
 
-const float Threshold = (float)1.0e-5;
+#define VERTICES 0
+#define TEXCOORDS 1
+#define NORMALS 2
+bool TexcoordsLoaded, NormalsLoaded;
 
 int window_width;
 int window_height;
 float cursorX, cursorY;
 float xOffset, yOffset;
 
-Camera camera(Vector3D(3, 0, 3), Vector3D(0, 0, 0), Vector3D(0, 1, 0));
-bool ortho = true;
+Camera camera(Vector3D(5, 5, 5), Vector3D(0, 0, 0), Vector3D(0, 1, 0));
+float view[16];
+float proj[16];
+bool ortho = false;
+bool projChanged;
 
+GLuint VaoId, ProgramId;
+GLint ModelMatrix_UId, ViewMatrix_UId, ProjectionMatrix_UId;
+
+// KEY PRESSED FLAGS
 // KEY PRESSED
 bool forwardKeyPressed = false;
 bool leftKeyPressed = false;
@@ -42,13 +45,277 @@ bool mouseMoved = false;
 bool quaternionRotation = false;
 bool cameraReset = false;
 bool stopRotating = false;
-bool automaticRotating = true;
+bool automaticRotating = false;
 
-float view[16];
-float proj[16];
+/////////////////////////////////////////////////////////////////////// SHADERs
 
-////////////////////////////////////////////////////////////////////////// MAIN
+const std::string read(const std::string& filename)
+{
+	std::ifstream ifile(filename);
+	std::string shader_string, line;
+	while (std::getline(ifile, line))
+	{
+		shader_string += line + "\n";
+	}
+	return shader_string;
+}
+
+const GLuint checkCompilation(const GLuint shader_id, const std::string& filename)
+{
+	GLint compiled;
+	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);
+	if (compiled == GL_FALSE)
+	{
+		GLint length;
+		glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
+		GLchar* const log = new char[length];
+		glGetShaderInfoLog(shader_id, length, &length, log);
+		std::cerr << "[" << filename << "] " << std::endl << log;
+		delete[] log;
+		exit(EXIT_FAILURE);
+	}
+	return compiled;
+}
+
+void checkLinkage(const GLuint program_id) {
+	GLint linked;
+	glGetProgramiv(program_id, GL_LINK_STATUS, &linked);
+	if (linked == GL_FALSE)
+	{
+		GLint length;
+		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &length);
+		GLchar* const log = new char[length];
+		glGetProgramInfoLog(program_id, length, &length, log);
+		std::cerr << "[LINK] " << std::endl << log << std::endl;
+		delete[] log;
+		exit(EXIT_FAILURE);
+	}
+}
+
+const GLuint addShader(const GLuint program_id, const GLenum shader_type, const std::string& filename)
+{
+	const GLuint shader_id = glCreateShader(shader_type);
+	const std::string scode = read(filename);
+	const GLchar* code = scode.c_str();
+	glShaderSource(shader_id, 1, &code, 0);
+	glCompileShader(shader_id);
+	checkCompilation(shader_id, filename);
+	glAttachShader(program_id, shader_id);
+	return shader_id;
+}
+
+void createShaderProgram(std::string& vs_file, std::string& fs_file)
+{
+	ProgramId = glCreateProgram();
+
+	GLuint VertexShaderId = addShader(ProgramId, GL_VERTEX_SHADER, vs_file);
+	GLuint FragmentShaderId = addShader(ProgramId, GL_FRAGMENT_SHADER, fs_file);
+
+	glBindAttribLocation(ProgramId, VERTICES, "inPosition");
+	if (TexcoordsLoaded)
+		glBindAttribLocation(ProgramId, TEXCOORDS, "inTexcoord");
+	if (NormalsLoaded)
+		glBindAttribLocation(ProgramId, NORMALS, "inNormal");
+
+	glLinkProgram(ProgramId);
+	checkLinkage(ProgramId);
+
+	glDetachShader(ProgramId, VertexShaderId);
+	glDetachShader(ProgramId, FragmentShaderId);
+	glDeleteShader(VertexShaderId);
+	glDeleteShader(FragmentShaderId);
+
+	ModelMatrix_UId = glGetUniformLocation(ProgramId, "ModelMatrix");
+	ViewMatrix_UId = glGetUniformLocation(ProgramId, "ViewMatrix");
+	ProjectionMatrix_UId = glGetUniformLocation(ProgramId, "ProjectionMatrix");
+}
+
+void destroyShaderProgram()
+{
+	glUseProgram(0);
+	glDeleteProgram(ProgramId);
+}
+
+////////////////////////////////////////////////////////////////////////// MESH
+
+typedef struct {
+	GLfloat x, y, z;
+} Vertex;
+
+typedef struct {
+	GLfloat u, v;
+} Texcoord;
+
+typedef struct {
+	GLfloat nx, ny, nz;
+} Normal;
+
+std::vector <Vertex> Vertices, vertexData;
+std::vector <Texcoord> Texcoords, texcoordData;
+std::vector <Normal> Normals, normalData;
+
+std::vector <unsigned int> vertexIdx, texcoordIdx, normalIdx;
+
+void parseVertex(std::stringstream& sin)
+{
+	Vertex v;
+	sin >> v.x >> v.y >> v.z;
+	vertexData.push_back(v);
+}
+
+void parseTexcoord(std::stringstream& sin)
+{
+	Texcoord t;
+	sin >> t.u >> t.v;
+	texcoordData.push_back(t);
+}
+
+void parseNormal(std::stringstream& sin)
+{
+	Normal n;
+	sin >> n.nx >> n.ny >> n.nz;
+	normalData.push_back(n);
+}
+
+void parseFace(std::stringstream& sin)
+{
+	std::string token;
+	if (normalData.empty() && texcoordData.empty())
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			sin >> token;
+			vertexIdx.push_back(std::stoi(token));
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			std::getline(sin, token, '/');
+			if (token.size() > 0) vertexIdx.push_back(std::stoi(token));
+			std::getline(sin, token, '/');
+			if (token.size() > 0) texcoordIdx.push_back(std::stoi(token));
+			std::getline(sin, token, ' ');
+			if (token.size() > 0) normalIdx.push_back(std::stoi(token));
+		}
+	}
+}
+
+void parseLine(std::stringstream& sin)
+{
+	std::string s;
+	sin >> s;
+	if (s.compare("v") == 0) parseVertex(sin);
+	else if (s.compare("vt") == 0) parseTexcoord(sin);
+	else if (s.compare("vn") == 0) parseNormal(sin);
+	else if (s.compare("f") == 0) parseFace(sin);
+}
+
+void loadMeshData(std::string& filename)
+{
+	std::ifstream ifile(filename);
+	std::string line;
+	while (std::getline(ifile, line)) {
+		std::stringstream sline(line);
+		parseLine(sline);
+	}
+	TexcoordsLoaded = (texcoordIdx.size() > 0);
+	NormalsLoaded = (normalIdx.size() > 0);
+}
+
+void processMeshData()
+{
+	for (unsigned int i = 0; i < vertexIdx.size(); i++) {
+		unsigned int vi = vertexIdx[i];
+		Vertex v = vertexData[vi - 1];
+		Vertices.push_back(v);
+		if (TexcoordsLoaded)
+		{
+			unsigned int ti = texcoordIdx[i];
+			Texcoord t = texcoordData[ti - 1];
+			Texcoords.push_back(t);
+		}
+		if (NormalsLoaded)
+		{
+			unsigned int ni = normalIdx[i];
+			Normal n = normalData[ni - 1];
+			Normals.push_back(n);
+		}
+	}
+}
+
+void freeMeshData()
+{
+	vertexData.clear();
+	texcoordData.clear();
+	normalData.clear();
+	vertexIdx.clear();
+	texcoordIdx.clear();
+	normalIdx.clear();
+}
+
+const void createMesh(std::string& filename)
+{
+	loadMeshData(filename);
+	processMeshData();
+	freeMeshData();
+}
+
+/////////////////////////////////////////////////////////////////////// VAOs & VBOs
+
+void createBufferObjects()
+{
+	GLuint VboVertices, VboTexcoords, VboNormals;
+
+	glGenVertexArrays(1, &VaoId);
+	glBindVertexArray(VaoId);
+	{
+		glGenBuffers(1, &VboVertices);
+		glBindBuffer(GL_ARRAY_BUFFER, VboVertices);
+		glBufferData(GL_ARRAY_BUFFER, Vertices.size() * sizeof(Vertex), &Vertices[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(VERTICES);
+		glVertexAttribPointer(VERTICES, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+
+		if (TexcoordsLoaded)
+		{
+			glGenBuffers(1, &VboTexcoords);
+			glBindBuffer(GL_ARRAY_BUFFER, VboTexcoords);
+			glBufferData(GL_ARRAY_BUFFER, Texcoords.size() * sizeof(Texcoord), &Texcoords[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(TEXCOORDS);
+			glVertexAttribPointer(TEXCOORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Texcoord), 0);
+		}
+		if (NormalsLoaded)
+		{
+			glGenBuffers(1, &VboNormals);
+			glBindBuffer(GL_ARRAY_BUFFER, VboNormals);
+			glBufferData(GL_ARRAY_BUFFER, Normals.size() * sizeof(Normal), &Normals[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(NORMALS);
+			glVertexAttribPointer(NORMALS, 3, GL_FLOAT, GL_FALSE, sizeof(Normal), 0);
+		}
+	}
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &VboVertices);
+	glDeleteBuffers(1, &VboTexcoords);
+	glDeleteBuffers(1, &VboNormals);
+}
+
+void destroyBufferObjects()
+{
+	glBindVertexArray(VaoId);
+	glDisableVertexAttribArray(VERTICES);
+	glDisableVertexAttribArray(TEXCOORDS);
+	glDisableVertexAttribArray(NORMALS);
+	glDeleteVertexArrays(1, &VaoId);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+/////////////////////////////////////////////////////////////////////// SCENE
+
 void move_camera() {
+
 	if (forwardKeyPressed) {
 		camera.moveCameraForward(0.05f);
 	}
@@ -61,26 +328,24 @@ void move_camera() {
 	if (!stopRotating) {
 		if (!quaternionRotation) {
 			if (automaticRotating) {
-				camera.rotateCameraAround(1, { 1.0f, 1.0f, 0.0f, 1.0f });
-				camera.rotateCameraAround(1, { 1.0f, 0.0f, 0.0f, 1.0f });
 				camera.rotateCameraAround(1, { 0.0f, 1.0f, 0.0f, 1.0f });
-				camera.rotateCameraAround(1, { 0.0f, 0.0f, 1.0f, 1.0f });
 			}
 			else
+
 				if (mouseMoved) {
 					camera.rotateCameraAround(xOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
-					camera.rotateCameraAround(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
+					//camera.rotateCameraAround(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
 					mouseMoved = false;
 				}
 		}
 		else {
 			if (automaticRotating) {
-				camera.rotateCameraAroundQuaternion(1, { 1.0f, 1.0f, 1.0f, 1.0f });
-			}	
+				camera.rotateCameraAroundQuaternion(1, { 0.0f, 1.0f, 0.0f, 1.0f });
+			}
 			else
 				if (mouseMoved) {
 					camera.rotateCameraAroundQuaternion(xOffset, { 0.0f, 1.0f, 0.0f, 1.0f });
-					camera.rotateCameraAroundQuaternion(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
+					//camera.rotateCameraAroundQuaternion(yOffset, { 1.0f, 0.0f, 0.0f, 1.0f });
 					mouseMoved = false;
 				}
 		}
@@ -135,8 +400,8 @@ void set_view_proj() {
 
 void setupCamera() {
 	// CAMERA SETUP //
-	camera.setOrthoProjectionMatrix(-1, 1, -1, 1, 1, 10);
-	camera.setPrespProjectionMatrix(15, (GLfloat)window_width / (GLfloat)window_height, 1, 10);
+	camera.setOrthoProjectionMatrix(-2.0f, 2.0f, -2.0f, 2.0f, 1.0f, 10.0f);
+	camera.setPrespProjectionMatrix(30, ((GLfloat)window_width / (GLfloat)window_height), 1.0f, 10.0f);
 
 	//Set initial cursor position to be the middle of the screen
 	cursorX = (float)window_width / 2;
@@ -148,67 +413,67 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 	// Key Presses
 	if (action == GLFW_PRESS) {
 		switch (key) {
-			case GLFW_KEY_P:
-				ortho = !ortho;
-				if (ortho) {
-					std::cout << "Orthogonal Mode!" << std::endl;
-				}
-				else {
-					std::cout << "Prespective Mode!" << std::endl;
-				}
-				break;
-			case GLFW_KEY_A:
-				leftKeyPressed = true;
-				break;
-			case GLFW_KEY_D:
-				rightKeyPressed = true;
-				break;
-			case GLFW_KEY_W:
-				forwardKeyPressed = true;
-				break;
-			case GLFW_KEY_S:
-				backwardKeyPressed = true;
-				break;
-			case GLFW_KEY_SPACE:
-				upKeyPressed = true;
-				break;
-			case GLFW_KEY_LEFT_CONTROL:
-				downKeyPressed = true;
-				break;
-			case GLFW_KEY_F:
-				lockMouse = !lockMouse;
-				if (lockMouse) {
-					firstMouse = true;
-				}
-				break;
-			case GLFW_KEY_I:
-				camera.invertCamera();
-				break;
-			case GLFW_KEY_R:
-				camera.resetCamera();
-				break;
-			case GLFW_KEY_G: {
-				quaternionRotation = !quaternionRotation;
-				if (quaternionRotation) {
-					std::cout << "Quaternion Rotation Mode!" << std::endl;
-				}
-				else {
-					std::cout << "Euler Rotation Mode!" << std::endl;
-				}
-				break;
-			}	
-			case GLFW_KEY_N: {
-				automaticRotating = !automaticRotating;
-				if (automaticRotating) {
-					std::cout << "Auto Rotation Mode!" << std::endl;
-				}
-				else {
-					std::cout << "Mouse Rotation Mode!" << std::endl;
-				}
-				break;
+		case GLFW_KEY_P:
+			ortho = !ortho;
+			if (ortho) {
+				std::cout << "Orthogonal Mode!" << std::endl;
 			}
+			else {
+				std::cout << "Prespective Mode!" << std::endl;
+			}
+			break;
+		case GLFW_KEY_A:
+			leftKeyPressed = true;
+			break;
+		case GLFW_KEY_D:
+			rightKeyPressed = true;
+			break;
+		case GLFW_KEY_W:
+			forwardKeyPressed = true;
+			break;
+		case GLFW_KEY_S:
+			backwardKeyPressed = true;
+			break;
+		case GLFW_KEY_SPACE:
+			upKeyPressed = true;
+			break;
+		case GLFW_KEY_LEFT_CONTROL:
+			downKeyPressed = true;
+			break;
+		case GLFW_KEY_F:
+			lockMouse = !lockMouse;
+			if (lockMouse) {
+				firstMouse = true;
+			}
+			break;
+		case GLFW_KEY_I:
+			camera.invertCamera();
+			break;
+		case GLFW_KEY_R:
+			camera.resetCamera();
+			break;
+		case GLFW_KEY_G: {
+			quaternionRotation = !quaternionRotation;
+			if (quaternionRotation) {
+				std::cout << "Quaternion Rotation Mode!" << std::endl;
+			}
+			else {
+				std::cout << "Euler Rotation Mode!" << std::endl;
+			}
+			break;
 		}
-		
+		case GLFW_KEY_N: {
+			automaticRotating = !automaticRotating;
+			if (automaticRotating) {
+				std::cout << "Auto Rotation Mode!" << std::endl;
+			}
+			else {
+				std::cout << "Mouse Rotation Mode!" << std::endl;
+			}
+			break;
+		}
+		}
+
 	}
 	else if (action == GLFW_RELEASE) {
 		switch (key) {
@@ -264,215 +529,228 @@ void setupCallbacks(GLFWwindow* win)
 	glfwSetCursorPosCallback(win, mouse_callback);
 }
 
-int main(int argc, char* argv[])
+void drawScene()
 {
-	GLFWwindow* window;
+	glBindVertexArray(VaoId);
+	glUseProgram(ProgramId);
 
-	/* Initialize the library */
-	if (!glfwInit())
-		return -1;
+	GLfloat model[16];
+	Matrix4D::identity().getColMajor(model);
+	camera.getViewMatrix().getColMajor(view);
+	camera.getPerspProj().getColMajor(proj);
 
-	/* Create a windowed mode window and its OpenGL context */
-	window_width = 920;
-	window_height = 920;
-	window = glfwCreateWindow(window_width, window_height, "Hello World", NULL, NULL);
+	GLfloat transf[16];
+	Matrix4D transf_M = Matrix4D::rotationZ(90);
+	transf_M *= Matrix4D::scaling(0.2f, 0.2f, 0.2f);
+	transf_M.getColMajor(transf);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, transf);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
 	
-	if (!window)
+	transf_M *= Matrix4D::translation(0.0f, 1.5f, -3.0f);
+	transf_M.getColMajor(transf);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, transf);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	transf_M *= Matrix4D::translation(0.0f, 1.5f, -3.0f);
+	transf_M.getColMajor(transf);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, transf);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	transf_M *= Matrix4D::translation(0.0f, 1.5f, -3.0f);
+	transf_M.getColMajor(transf);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, transf);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+
+	glUseProgram(0);
+	glBindVertexArray(0);
+}
+
+///////////////////////////////////////////////////////////////////// CALLBACKS
+
+void window_close_callback(GLFWwindow* win)
+{
+	destroyShaderProgram();
+	destroyBufferObjects();
+}
+
+void window_size_callback(GLFWwindow* win, int winx, int winy)
+{
+	window_width = winx;
+	window_height = winy;
+	glViewport(0, 0, winx, winy);
+	// Change projection matrices to maintain aspect ratio
+}
+
+///////////////////////////////////////////////////////////////////////// SETUP
+
+void glfw_error_callback(int error, const char* description)
+{
+	std::cerr << "GLFW Error: " << description << std::endl;
+}
+
+GLFWwindow* setupWindow(int winx, int winy, const char* title,
+	int is_fullscreen, int is_vsync)
+{
+	window_width = winx;
+	window_height = winy;
+	GLFWmonitor* monitor = is_fullscreen ? glfwGetPrimaryMonitor() : 0;
+	GLFWwindow* win = glfwCreateWindow(winx, winy, title, monitor, 0);
+	if (!win)
 	{
 		glfwTerminate();
-		return -1;
+		exit(EXIT_FAILURE);
 	}
+	glfwMakeContextCurrent(win);
+	glfwSwapInterval(is_vsync);
+	return win;
+}
 
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
+GLFWwindow* setupGLFW(int gl_major, int gl_minor,
+	int winx, int winy, const char* title, int is_fullscreen, int is_vsync)
+{
+	glfwSetErrorCallback(glfw_error_callback);
+	if (!glfwInit())
+	{
+		exit(EXIT_FAILURE);
+	}
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
-	// Initialize Glew
+	GLFWwindow* win = setupWindow(winx, winy, title, is_fullscreen, is_vsync);
+
+#if _DEBUG
+	std::cout << "GLFW " << glfwGetVersionString() << std::endl;
+#endif
+	return win;
+}
+
+void setupGLEW()
+{
 	glewExperimental = GL_TRUE;
-	glewInit();
+	// Allow extension entry points to be loaded even if the extension isn't 
+	// present in the driver's extensions string.
+	GLenum result = glewInit();
+	if (result != GLEW_OK)
+	{
+		std::cerr << "ERROR glewInit: " << glewGetString(result) << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	GLenum err_code = glGetError();
+	// You might get GL_INVALID_ENUM when loading GLEW.
+}
 
-	setupCallbacks(window);
+void checkOpenGLInfo()
+{
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* vendor = glGetString(GL_VENDOR);
+	const GLubyte* version = glGetString(GL_VERSION);
+	const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+	std::cerr << "OpenGL Renderer: " << renderer << " (" << vendor << ")" << std::endl;
+	std::cerr << "OpenGL version " << version << std::endl;
+	std::cerr << "GLSL version " << glslVersion << std::endl;
+}
+
+void setupOpenGL(int winx, int winy)
+{
+#if _DEBUG
+	checkOpenGLInfo();
+#endif
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_TRUE);
+	glDepthRange(0.0, 1.0);
+	glClearDepth(1.0);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glViewport(0, 0, winx, winy);
+}
+
+GLFWwindow* setup(int major, int minor,
+	int winx, int winy, const char* title, int is_fullscreen, int is_vsync)
+{
+	GLFWwindow* win =
+		setupGLFW(major, minor, winx, winy, title, is_fullscreen, is_vsync);
+	setupGLEW();
+	setupOpenGL(winx, winy);
+
+	setupCallbacks(win);
 	setupCamera();
 
-	//RED PART POSITIONS
+	std::string mesh_dir = "Engine/assets/models/";
+	std::string mesh_file = "cube.obj";
+	std::string mesh_fullname = mesh_dir + mesh_file;
+	createMesh(mesh_fullname);
+	createBufferObjects();
 
-	GLfloat pol_red[] = {
-		-0.605f, -0.48f, 0.5f, 0.0f, 0.0f, 0.0f,
-		- 0.54f, -0.605f, 0.5f, 0.0f, 0.0f, 0.0f,
-		0.01f, 0.58f, 1.0f, 0.0f, 0.0f, 0.0f,
-		0.01f, 0.34f, 1.0f, 0.0f, 0.0f, 0.0f,
-		0.56f, -0.37f, 0.5f, 0.0f, 0.0f, 0.0f,
-		0.42f, -0.37f,0.5f, 0.0f, 0.0f, 0.0f
-	};
+	std::string vs = "Engine/res/shaders/cube_vs.glsl";
+	std::string fs = "Engine/res/shaders/cube_fs.glsl";
+	createShaderProgram(vs, fs);
+	return win;
+}
 
-	GLfloat pol_green[] = {
-		-0.605f, -0.48f, 0.0f, 0.5f, 0.0f, 0.0f,
-		-0.54f, -0.605f, 0.0f, 0.5f, 0.0f, 0.0f,
-		0.01f, 0.58f, 0.0f, 1.0f, 0.0f, 0.0f,
-		0.01f, 0.34f, 0.0f, 1.0f, 0.0f, 0.0f,
-		0.56f, -0.37f, 0.0f, 0.5f, 0.0f, 0.0f,
-		0.42f, -0.37f,0.0f, 0.5f, 0.0f, 0.0f
-	};
+////////////////////////////////////////////////////////////////////////// RUN
 
-	GLfloat pol_blue[] = {
-		-0.605f, -0.48f, 0.0f, 0.0f, 0.5f, 0.0f,
-		-0.54f, -0.605f, 0.0f, 0.0f, 0.5f, 0.0f,
-		0.01f, 0.58f, 0.0f, 0.0f, 1.0f, 0.0f,
-		0.01f, 0.34f, 0.0f, 0.0f, 1.0f, 0.0f,
-		0.56f, -0.37f, 0.0f, 0.0f, 0.5f, 0.0f,
-		0.42f, -0.37f, 0.0f, 0.0f, 0.5f, 0.0f
-	};
+void display(GLFWwindow* win, double elapsed_sec)
+{
+	drawScene();
+}
 
-
-	//RED PART
-	Matrix4D id = Matrix4D::identity();
-
-	//GREEN PART
-	Matrix4D m_rot_1 = Matrix4D::rotationZ(-120, false);
-	Matrix4D m_transl_1 = Matrix4D::translation(0.26f,-0.192f,0.0f);
-	Matrix4D m_modal_1 = (m_transl_1 * m_rot_1);
-
-	//BLUE PART
-	Matrix4D m_rot_2 = Matrix4D::rotationZ(120, false);
-	Matrix4D m_transl_2 = Matrix4D::translation(-0.034f, -0.328f, 0.0f);
-	Matrix4D m_modal_2 = (m_transl_2 * m_rot_2);
-
-
-	//Generate index buffer
-	GLuint indices[] = {
-		2, 0, 1, 
-		1, 3, 2, 
-		2, 3, 5,
-		5, 4, 2
-	};
-	GLuint indices_back[] = {
-		2, 3, 1,
-		1, 0, 2,
-		2, 5, 3,
-		5, 2, 4
-	};
-
-	//Generate a buffer layout
-	VertexBufferLayout layout;
-	layout.Push<float>(2);
-	layout.Push<float>(4);
-	
-
-	//Generate a vertex buffer - RED PART
-	VertexArray va;
-	VertexBuffer vb (pol_red, 6 * 6 * sizeof(GLfloat));
-	va.AddBuffer(vb, layout);
-
-
-	//Generate an index buffers
-	IndexBuffer ib(indices, 12);
-	IndexBuffer ib_back(indices_back, 12);
-
-	Shader shader("Engine/res/shaders/Basic.shader");
-
-
-	va.UnBind();
-	vb.Unbind();
-	ib.Unbind();
-	shader.UnBind();
-
-
-	Renderer renderer;
-
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CCW);
-
-	if (lockMouse) {
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //Tell GLFW that it should hide the cursorand capture it.Capturing a cursor means that, once the application has focus, the mouse cursor stays within the center of the window(unless the application loses focus or quits)
-	}
-	else {
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
-
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
+void run(GLFWwindow* win)
+{
+	double last_time = glfwGetTime();
+	while (!glfwWindowShouldClose(win))
 	{
-		renderer.clear();
-
-		//mouse_keyboard_input();
+		double time = glfwGetTime();
+		double elapsed_time = time - last_time;
+		last_time = time;
 
 		move_camera();
 
 		set_view_proj();
 
-		vb.Bind();
-		vb.SubBufferData(0, 6 * 6 * sizeof(float), pol_red);
-		shader.Bind();
-		GLfloat arr[16];
-		id.getRowMajor(arr);
-		shader.SetUniform4fv("Modal", arr);
-		shader.SetUniform4fv("View", view);
-		shader.SetUniform4fv("Projection", proj);
-		shader.SetUniform1i("isBack", 0);
-		renderer.Draw(va, ib, shader);
-
-		
-		vb.Bind();
-		vb.SubBufferData(0, 6 * 6 * sizeof(float), pol_green);
-		shader.Bind();
-		GLfloat arr1[16];
-		m_modal_1.getRowMajor(arr1);
-		shader.SetUniform4fv("Modal", arr1);
-		shader.SetUniform4fv("View", view);
-		shader.SetUniform4fv("Projection", proj);
-		shader.SetUniform1i("isBack", 0);
-		renderer.Draw(va, ib, shader);
-
-		vb.Bind();
-		vb.SubBufferData(0, 6 * 6 * sizeof(float), pol_blue);
-		shader.Bind();
-		GLfloat arr2[16];
-		m_modal_2.getRowMajor(arr2);
-		shader.SetUniform4fv("Modal", arr2);
-		shader.SetUniform4fv("View", view);
-		shader.SetUniform4fv("Projection", proj);
-		shader.SetUniform1i("isBack", 0);
-		renderer.Draw(va, ib, shader);
-
-		
-		//DRAW BACK FACE
-		vb.Bind();
-		vb.SubBufferData(0, 6 * 6 * sizeof(float), pol_red);
-		shader.SetUniform4fv("Modal", arr);
-		shader.SetUniform4fv("View", view);
-		shader.SetUniform4fv("Projection", proj);
-		shader.SetUniform1i("isBack", 1);
-		renderer.Draw(va, ib_back, shader);
-
-		vb.Bind();
-		vb.SubBufferData(0, 6 * 6 * sizeof(float), pol_green);
-		shader.SetUniform4fv("Modal", arr1);
-		shader.SetUniform4fv("View", view);
-		shader.SetUniform4fv("Projection", proj);
-		shader.SetUniform1i("isBack", 1);
-		renderer.Draw(va, ib_back, shader);
-
-		vb.Bind();
-		vb.SubBufferData(0, 6 * 6 * sizeof(float), pol_blue);
-		shader.SetUniform4fv("Modal", arr2);
-		shader.SetUniform4fv("View", view);
-		shader.SetUniform4fv("Projection", proj);
-		shader.SetUniform1i("isBack", 1);
-		renderer.Draw(va, ib_back, shader);
-
-
-		glfwSwapBuffers(window);
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		display(win, elapsed_time);
+		glfwSwapBuffers(win);
 		glfwPollEvents();
 	}
-
+	glfwDestroyWindow(win);
 	glfwTerminate();
-	return 0;
-
-
-
-	exit(EXIT_SUCCESS);
-
 }
 
-/////////////////////////////////////////////////////////////////////////// END
+////////////////////////////////////////////////////////////////////////// MAIN
 
+int main(int argc, char* argv[])
+{
+	int gl_major = 4, gl_minor = 3;
+	int is_fullscreen = 0;
+	int is_vsync = 1;
+	GLFWwindow* win = setup(gl_major, gl_minor,
+		640, 480, "Loading World", is_fullscreen, is_vsync);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+
+	if (lockMouse) {
+		glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //Tell GLFW that it should hide the cursorand capture it.Capturing a cursor means that, once the application has focus, the mouse cursor stays within the center of the window(unless the application loses focus or quits)
+	}
+	else {
+		glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	run(win);
+	exit(EXIT_SUCCESS);
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////

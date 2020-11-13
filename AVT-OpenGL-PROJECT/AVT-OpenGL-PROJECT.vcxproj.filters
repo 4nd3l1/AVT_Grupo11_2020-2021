@@ -107,5 +107,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\res\shaders\Basic.shader" />
+    <None Include="Engine\res\shaders\cube_fs.glsl" />
+    <None Include="Engine\res\shaders\cube_vs.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Engine\assets\models\gg.txt" />
   </ItemGroup>
 </Project>
