@@ -60,6 +60,12 @@
     <ClCompile Include="Engine\SourceFiles\Quaternion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\SourceFiles\Obj_Loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\SourceFiles\SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\HeaderFiles\Vector3D.h">
@@ -104,11 +110,18 @@
     <ClInclude Include="Engine\HeaderFiles\Quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\HeaderFiles\Obj_Loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\HeaderFiles\SceneManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\res\shaders\Basic.shader" />
     <None Include="Engine\res\shaders\cube_fs.glsl" />
     <None Include="Engine\res\shaders\cube_vs.glsl" />
+    <None Include="Engine\res\shaders\frame_fs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\assets\models\gg.txt" />

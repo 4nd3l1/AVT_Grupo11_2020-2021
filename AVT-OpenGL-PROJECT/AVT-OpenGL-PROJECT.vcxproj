@@ -151,6 +151,7 @@
     <ClCompile Include="Engine\SourceFiles\Matrix2D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix3D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Matrix4D.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Obj_Loader.cpp" />
     <ClCompile Include="Engine\SourceFiles\Quaternion.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector2D.cpp" />
     <ClCompile Include="Engine\SourceFiles\Vector3D.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Engine\SourceFiles\VertexArray.cpp" />
     <ClCompile Include="Engine\SourceFiles\VertexBufferLayout.cpp" />
     <ClCompile Include="Engine\SourceFiles\Shader.cpp" />
+    <ClCompile Include="Engine\SourceFiles\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\HeaderFiles\Camera.h" />
@@ -167,6 +169,7 @@
     <ClInclude Include="Engine\HeaderFiles\Matrix2D.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix3D.h" />
     <ClInclude Include="Engine\HeaderFiles\Matrix4D.h" />
+    <ClInclude Include="Engine\HeaderFiles\Obj_Loader.h" />
     <ClInclude Include="Engine\HeaderFiles\Quaternion.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector2D.h" />
     <ClInclude Include="Engine\HeaderFiles\Vector3D.h" />
@@ -176,11 +179,13 @@
     <ClInclude Include="Engine\HeaderFiles\VertexArray.h" />
     <ClInclude Include="Engine\HeaderFiles\VertexBufferLayout.h" />
     <ClInclude Include="Engine\HeaderFiles\Shader.h" />
+    <ClInclude Include="Engine\HeaderFiles\SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\res\shaders\Basic.shader" />
     <None Include="Engine\res\shaders\cube_fs.glsl" />
     <None Include="Engine\res\shaders\cube_vs.glsl" />
+    <None Include="Engine\res\shaders\frame_fs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\assets\models\gg.txt" />
