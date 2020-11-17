@@ -3,12 +3,9 @@
 in vec3 exPosition;
 in vec2 exTexcoord;
 in vec3 exNormal;
-uniform vec4 ourColor;
 uniform int isSingleColor;
+uniform vec4 ourColor;
 out vec4 FragmentColor;
-
-
-
 
 void main(void)
 {
@@ -26,7 +23,7 @@ if(isSingleColor == 0){
 		FragmentColor = vec4(vec3(intensity), 1.0);
 	/**/
 }
-else{
+else {
 	FragmentColor = ourColor;
 }
 

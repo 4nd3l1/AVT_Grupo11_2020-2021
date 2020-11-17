@@ -9,27 +9,26 @@
 #include <GLFW/glfw3.h>
 #include "HeaderFiles/Matrix4D.h"
 #include "HeaderFiles/Camera.h"
-#include "HeaderFiles/Obj_Loader.h"
-#include "HeaderFiles/SceneManager.h"
-
-#define VERTICES 0
-#define TEXCOORDS 1
-#define NORMALS 2
-bool TexcoordsLoaded, NormalsLoaded;
+#include "HeaderFiles/Mesh.h"
 
 int window_width;
 int window_height;
 float cursorX, cursorY;
 float xOffset, yOffset;
 
-Camera camera(Vector3D(-1.827443f, -2.618987f, 3.515253f), Vector3D(-1.252371f, -2.050623f, 2.926818f), Vector3D(0, 1, 0));
+GLuint Vao_ID1, Vao_ID2, Vao_ID3;
+Mesh m1, m2, m3;
+
+Camera camera(Vector3D(3.5f, 3.0f, 50.0f), Vector3D(3.5f, 3.0f, 0.0f), Vector3D(0.0f, 1.0f, 0.0f));
 float view[16];
 float proj[16];
 bool ortho = true;
 bool projChanged;
 
-GLuint VaoId, ProgramId;
-GLint ModelMatrix_UId, ViewMatrix_UId, ProjectionMatrix_UId;
+Vector3D pos[9];
+
+bool animation = false;
+bool animation_frame = false;
 
 // KEY PRESSED
 bool forwardKeyPressed = false;
@@ -49,12 +48,312 @@ bool cameraReset = false;
 bool stopRotating = false;
 bool automaticRotating = false;
 
-Obj_Loader obj_loader;
-SceneManager sc;
 
-GLuint penrose_vao, frame_vao, back_vao;
+#define VERTICES 0
+#define TEXCOORDS 1
+#define NORMALS 2
+bool TexcoordsLoaded, NormalsLoaded;
+
+GLuint ProgramId;
+GLint ModelMatrix_UId, ViewMatrix_UId, ProjectionMatrix_UId, isSingleColor_UId, Color_UId;
+
+const std::string read(const std::string& filename)
+{
+	std::ifstream ifile(filename);
+	std::string shader_string, line;
+	while (std::getline(ifile, line))
+	{
+		shader_string += line + "\n";
+	}
+	return shader_string;
+}
+
+const GLuint checkCompilation(const GLuint shader_id, const std::string& filename)
+{
+	GLint compiled;
+	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &compiled);
+	if (compiled == GL_FALSE)
+	{
+		GLint length;
+		glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
+		GLchar* const log = new char[length];
+		glGetShaderInfoLog(shader_id, length, &length, log);
+		std::cerr << "[" << filename << "] " << std::endl << log;
+		delete[] log;
+		exit(EXIT_FAILURE);
+	}
+	return compiled;
+}
+
+void checkLinkage(const GLuint program_id) {
+	GLint linked;
+	glGetProgramiv(program_id, GL_LINK_STATUS, &linked);
+	if (linked == GL_FALSE)
+	{
+		GLint length;
+		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &length);
+		GLchar* const log = new char[length];
+		glGetProgramInfoLog(program_id, length, &length, log);
+		std::cerr << "[LINK] " << std::endl << log << std::endl;
+		delete[] log;
+		exit(EXIT_FAILURE);
+	}
+}
+
+const GLuint addShader(const GLuint program_id, const GLenum shader_type, const std::string& filename)
+{
+	const GLuint shader_id = glCreateShader(shader_type);
+	const std::string scode = read(filename);
+	const GLchar* code = scode.c_str();
+	glShaderSource(shader_id, 1, &code, 0);
+	glCompileShader(shader_id);
+	checkCompilation(shader_id, filename);
+	glAttachShader(program_id, shader_id);
+	return shader_id;
+}
+
+void createShaderProgram(std::string& vs_file, std::string& fs_file)
+{
+	ProgramId = glCreateProgram();
+
+	GLuint VertexShaderId = addShader(ProgramId, GL_VERTEX_SHADER, vs_file);
+	GLuint FragmentShaderId = addShader(ProgramId, GL_FRAGMENT_SHADER, fs_file);
+
+	glBindAttribLocation(ProgramId, VERTICES, "inPosition");
+	if (TexcoordsLoaded)
+		glBindAttribLocation(ProgramId, TEXCOORDS, "inTexcoord");
+	if (NormalsLoaded)
+		glBindAttribLocation(ProgramId, NORMALS, "inNormal");
+
+	glLinkProgram(ProgramId);
+	checkLinkage(ProgramId);
+
+	glDetachShader(ProgramId, VertexShaderId);
+	glDetachShader(ProgramId, FragmentShaderId);
+	glDeleteShader(VertexShaderId);
+	glDeleteShader(FragmentShaderId);
+
+	ModelMatrix_UId = glGetUniformLocation(ProgramId, "ModelMatrix");
+	ViewMatrix_UId = glGetUniformLocation(ProgramId, "ViewMatrix");
+	ProjectionMatrix_UId = glGetUniformLocation(ProgramId, "ProjectionMatrix");
+	isSingleColor_UId = glGetUniformLocation(ProgramId, "isSingleColor");
+	Color_UId = glGetUniformLocation(ProgramId, "ourColor");
+}
+
+void destroyShaderProgram()
+{
+	glUseProgram(0);
+	glDeleteProgram(ProgramId);
+}
 
 /////////////////////////////////////////////////////////////////////// SHADERs
+
+
+void createBufferObjects(GLuint &VaoId, Mesh m)
+{
+	GLuint VboVertices, VboTexcoords, VboNormals;
+
+	glGenVertexArrays(1, &VaoId);
+	glBindVertexArray(VaoId);
+	{
+		glGenBuffers(1, &VboVertices);
+		glBindBuffer(GL_ARRAY_BUFFER, VboVertices);
+		glBufferData(GL_ARRAY_BUFFER, m.getVertices().size() * sizeof(Vertex), &m.getVertices()[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(VERTICES);
+		glVertexAttribPointer(VERTICES, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+
+		if (m.getTexcoordsLoaded())
+		{
+			glGenBuffers(1, &VboTexcoords);
+			glBindBuffer(GL_ARRAY_BUFFER, VboTexcoords);
+			glBufferData(GL_ARRAY_BUFFER, m.getTexCoords().size() * sizeof(Texcoord), &m.getTexCoords()[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(TEXCOORDS);
+			glVertexAttribPointer(TEXCOORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Texcoord), 0);
+		}
+		if (m.getNormalsLoaded())
+		{
+			glGenBuffers(1, &VboNormals);
+			glBindBuffer(GL_ARRAY_BUFFER, VboNormals);
+			glBufferData(GL_ARRAY_BUFFER, m.getNormals().size() * sizeof(Normal), &m.getNormals()[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(NORMALS);
+			glVertexAttribPointer(NORMALS, 3, GL_FLOAT, GL_FALSE, sizeof(Normal), 0);
+		}
+	}
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDeleteBuffers(1, &VboVertices);
+	glDeleteBuffers(1, &VboTexcoords);
+	glDeleteBuffers(1, &VboNormals);
+}
+
+void destroyBufferObjects()
+{
+	glBindVertexArray(Vao_ID1);
+	glDisableVertexAttribArray(VERTICES);
+	glDisableVertexAttribArray(TEXCOORDS);
+	glDisableVertexAttribArray(NORMALS);
+	glDeleteVertexArrays(1, &Vao_ID1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	glBindVertexArray(Vao_ID2);
+	glDisableVertexAttribArray(VERTICES);
+	glDisableVertexAttribArray(TEXCOORDS);
+	glDisableVertexAttribArray(NORMALS);
+	glDeleteVertexArrays(1, &Vao_ID2);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void drawScene()
+{
+	glUseProgram(ProgramId);
+	glBindVertexArray(Vao_ID1);
+
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+
+	GLfloat model[16];
+	GLsizei size;
+
+	float animationSpeed = 0.02f;
+	for (int i = 0; i < 9; i++) {
+
+		if (animation) {
+			if (pos[i].getX() < 9) {
+				pos[i].setX(pos[i].getX() + animationSpeed);
+			}
+			else if (pos[i].getZ() < 9) {
+				pos[i].setZ(pos[i].getZ() + animationSpeed);
+			}
+			else if (pos[i].getY() < 9) {
+				pos[i].setY(pos[i].getY() + animationSpeed);
+			}
+			else {
+				pos[i].setX(0);
+				pos[i].setY(0);
+				pos[i].setZ(0);
+			}
+		}
+		
+		Vector3D v = pos[i];
+		Matrix4D rotX = Matrix4D::rotationX(35.2f, false);
+		Matrix4D rotY = Matrix4D::rotationY(-45.0f, false);
+		Matrix4D rotZ = Matrix4D::rotationZ(90.2f, false);
+		Matrix4D transl = Matrix4D::translation(v.getX(), v.getY(), v.getZ());
+		(rotZ * rotX * rotY * transl).getColMajor(model);
+		glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+		glUniform1i(isSingleColor_UId, 0);
+		size = (GLsizei)m1.getVertices().size();
+		glDrawArrays(GL_TRIANGLES, 0, size);
+	}
+
+	glBindVertexArray(Vao_ID2);
+
+	(Matrix4D::translation(3.5f, 3.0f, 0.0f)
+		* Matrix4D::scaling(4.0f, 4.0f, 4.0f)).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 1);
+	GLfloat color[4] = {
+		0.6f, 0.2f, 0.0f, 0.0f };
+	glUniform4fv(Color_UId, 1, color);
+	size = (GLsizei)m2.getVertices().size();
+	glDrawArrays(GL_TRIANGLES, 0, size);
+
+	glBindVertexArray(Vao_ID3);
+
+	(Matrix4D::translation(3.5f, 3.0f, -4.0f) * 
+		Matrix4D::rotationX(180, false) *
+		Matrix4D::scaling(4.0f, 4.0f, 4.0f) ).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 1);
+	GLfloat color_1[4] = {
+		0.0f, 0.0f, 0.0f, 0.0f };
+	glUniform4fv(Color_UId, 1, color_1);
+	size = (GLsizei)m3.getVertices().size();
+	glDrawArrays(GL_TRIANGLES, 0, size);
+
+	
+	glUseProgram(0);
+
+/*
+	glBindVertexArray(Vao_ID1);
+	Matrix4D::identity().getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(3.0f, 0.0f, 0.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(6.0f, 0.0f, 0.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(9.0f, 0.0f, 0.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(9.0f, 3.0f, 0.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(9.0f, 6.0f, 0.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(9.0f, 9.0f, 0.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(9.0f, 9.0f, 3.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+	Matrix4D::translation(9.0f, 9.0f, 6.0f).getColMajor(model);
+	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
+	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
+	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
+	glUniform1i(isSingleColor_UId, 0);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
+
+
+	glBindVertexArray(0);
+
+	glUseProgram(0);
+	*/
+
+
+
+}
 
 void move_camera() {
 
@@ -149,8 +448,8 @@ void set_view_proj() {
 
 void setupCamera() {
 	// CAMERA SETUP //
-	camera.setOrthoProjectionMatrix(-3.0f, 3.0f, -3.0f, 3.0f, -10.0f, 10.0f);
-	camera.setPrespProjectionMatrix(30, ((GLfloat)window_width / (GLfloat)window_height), 1.0f, 10.0f);
+	camera.setOrthoProjectionMatrix(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 100.0f);
+	camera.setPrespProjectionMatrix(30, ((GLfloat)window_width / (GLfloat)window_height), 1.0f, 100.0f);
 	//Set initial cursor position to be the middle of the screen
 	cursorX = (float)window_width / 2;
 	cursorY = (float)window_height / 2;
@@ -188,12 +487,6 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 		case GLFW_KEY_LEFT_CONTROL:
 			downKeyPressed = true;
 			break;
-		case GLFW_KEY_F:
-			lockMouse = !lockMouse;
-			if (lockMouse) {
-				firstMouse = true;
-			}
-			break;
 		case GLFW_KEY_I:
 			camera.invertCamera();
 			break;
@@ -220,6 +513,12 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 			}
 			break;
 		}
+		case GLFW_KEY_C:
+			animation = !animation;
+			break;
+		case GLFW_KEY_F:
+			animation_frame = !animation_frame;
+			break;
 		}
 
 	}
@@ -243,7 +542,9 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 		case GLFW_KEY_LEFT_CONTROL:
 			downKeyPressed = false;
 			break;
+
 		}
+
 	}
 }
 
@@ -281,8 +582,8 @@ void setupCallbacks(GLFWwindow* win)
 
 void window_close_callback(GLFWwindow* win)
 {
-	obj_loader.destroyShaderProgram();
-	obj_loader.destroyBufferObjects();
+	destroyShaderProgram();
+	destroyBufferObjects();
 }
 
 void window_size_callback(GLFWwindow* win, int winx, int winy)
@@ -368,7 +669,7 @@ void setupOpenGL(int winx, int winy)
 #if _DEBUG
 	checkOpenGLInfo();
 #endif
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);
@@ -389,14 +690,21 @@ GLFWwindow* setup(int major, int minor,
 	setupOpenGL(winx, winy);
 
 	setupCallbacks(win);
+
 	setupCamera();
+	
+	m1.CreateMesh("Engine/assets/models/cube.obj");
+	createBufferObjects(Vao_ID1, m1);
+	m2.CreateMesh("Engine/assets/models/frame.obj");
+	createBufferObjects(Vao_ID2, m2);
+	m3.CreateMesh("Engine/assets/models/back.obj");
+	createBufferObjects(Vao_ID3, m3);
 
-	sc.setup();
+	std::string vs = "Engine/res/shaders/cube_vs.glsl";
+	std::string fs = "Engine/res/shaders/cube_fs.glsl";
 
-	obj_loader.setup("Engine/assets/models/cube.obj", "Engine/res/shaders/cube_vs.glsl", "Engine/res/shaders/cube_fs.glsl", penrose_vao);
-	obj_loader.setup("Engine/assets/models/frame.obj", "Engine/res/shaders/cube_vs.glsl", "Engine/res/shaders/cube_fs.glsl", frame_vao);
-	obj_loader.setup("Engine/assets/models/back.obj", "Engine/res/shaders/cube_vs.glsl", "Engine/res/shaders/cube_fs.glsl", back_vao);
 
+	createShaderProgram(vs, fs);
 	return win;
 }
 
@@ -404,7 +712,7 @@ GLFWwindow* setup(int major, int minor,
 
 void display(GLFWwindow* win, double elapsed_sec)
 {
-	sc.draw(penrose_vao, frame_vao, back_vao, view, proj, obj_loader);
+	drawScene();
 }
 
 void run(GLFWwindow* win)
@@ -421,7 +729,9 @@ void run(GLFWwindow* win)
 		set_view_proj();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		display(win, elapsed_time);
+
 		glfwSwapBuffers(win);
 		glfwPollEvents();
 	}
@@ -437,7 +747,7 @@ int main(int argc, char* argv[])
 	int is_fullscreen = 0;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
-		640, 480, "Loading World", is_fullscreen, is_vsync);
+		1000, 1000, "Loading World", is_fullscreen, is_vsync);
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 
@@ -447,6 +757,18 @@ int main(int argc, char* argv[])
 	else {
 		glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
+
+	pos[0] = Vector3D(3, 0, 0);
+	pos[1] = Vector3D(6, 0, 0);
+	pos[2] = Vector3D(9, 0, 0);
+	pos[3] = Vector3D(9, 0, 3);
+	pos[4] = Vector3D(9, 0, 6);
+	pos[5] = Vector3D(9, 0, 9);
+	pos[6] = Vector3D(9, 3, 9);
+	pos[7] = Vector3D(9, 6, 9);
+	pos[8] = Vector3D(9, 9, 9);
+
+
 	run(win);
 	exit(EXIT_SUCCESS);
 	
