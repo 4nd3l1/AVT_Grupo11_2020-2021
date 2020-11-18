@@ -60,10 +60,10 @@
     <ClCompile Include="Engine\SourceFiles\Quaternion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\SourceFiles\SceneManager.cpp">
+    <ClCompile Include="Engine\SourceFiles\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\SourceFiles\Mesh.cpp">
+    <ClCompile Include="Engine\SourceFiles\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,13 +110,13 @@
     <ClInclude Include="Engine\HeaderFiles\Quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\HeaderFiles\SceneManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\HeaderFiles\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\HeaderFiles\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\HeaderFiles\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

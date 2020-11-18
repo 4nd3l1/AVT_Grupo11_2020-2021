@@ -161,7 +161,7 @@
     <ClCompile Include="Engine\SourceFiles\VertexArray.cpp" />
     <ClCompile Include="Engine\SourceFiles\VertexBufferLayout.cpp" />
     <ClCompile Include="Engine\SourceFiles\Shader.cpp" />
-    <ClCompile Include="Engine\SourceFiles\SceneManager.cpp" />
+    <ClCompile Include="Engine\SourceFiles\Node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\HeaderFiles\Camera.h" />
@@ -180,7 +180,7 @@
     <ClInclude Include="Engine\HeaderFiles\VertexArray.h" />
     <ClInclude Include="Engine\HeaderFiles\VertexBufferLayout.h" />
     <ClInclude Include="Engine\HeaderFiles\Shader.h" />
-    <ClInclude Include="Engine\HeaderFiles\SceneManager.h" />
+    <ClInclude Include="Engine\HeaderFiles\Node.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\res\shaders\Basic.shader" />

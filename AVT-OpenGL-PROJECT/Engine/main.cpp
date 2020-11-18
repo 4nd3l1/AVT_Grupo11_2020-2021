@@ -10,12 +10,14 @@
 #include "HeaderFiles/Matrix4D.h"
 #include "HeaderFiles/Camera.h"
 #include "HeaderFiles/Mesh.h"
+#include "HeaderFiles/Node.h"
 
 int window_width;
 int window_height;
 float cursorX, cursorY;
 float xOffset, yOffset;
 
+Node n1, n2, n3;
 GLuint Vao_ID1, Vao_ID2, Vao_ID3;
 Mesh m1, m2, m3;
 
@@ -149,7 +151,7 @@ void destroyShaderProgram()
 /////////////////////////////////////////////////////////////////////// SHADERs
 
 
-void createBufferObjects(GLuint &VaoId, Mesh m)
+void createBufferObjects(GLuint &VaoId, Node n)
 {
 	GLuint VboVertices, VboTexcoords, VboNormals;
 
@@ -158,23 +160,23 @@ void createBufferObjects(GLuint &VaoId, Mesh m)
 	{
 		glGenBuffers(1, &VboVertices);
 		glBindBuffer(GL_ARRAY_BUFFER, VboVertices);
-		glBufferData(GL_ARRAY_BUFFER, m.getVertices().size() * sizeof(Vertex), &m.getVertices()[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, n.mesh.getVertices().size() * sizeof(Vertex), &n.mesh.getVertices()[0], GL_STATIC_DRAW);
 		glEnableVertexAttribArray(VERTICES);
 		glVertexAttribPointer(VERTICES, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 
-		if (m.getTexcoordsLoaded())
+		if (n.mesh.getTexcoordsLoaded())
 		{
 			glGenBuffers(1, &VboTexcoords);
 			glBindBuffer(GL_ARRAY_BUFFER, VboTexcoords);
-			glBufferData(GL_ARRAY_BUFFER, m.getTexCoords().size() * sizeof(Texcoord), &m.getTexCoords()[0], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, n.mesh.getTexCoords().size() * sizeof(Texcoord), &n.mesh.getTexCoords()[0], GL_STATIC_DRAW);
 			glEnableVertexAttribArray(TEXCOORDS);
 			glVertexAttribPointer(TEXCOORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Texcoord), 0);
 		}
-		if (m.getNormalsLoaded())
+		if (n.mesh.getNormalsLoaded())
 		{
 			glGenBuffers(1, &VboNormals);
 			glBindBuffer(GL_ARRAY_BUFFER, VboNormals);
-			glBufferData(GL_ARRAY_BUFFER, m.getNormals().size() * sizeof(Normal), &m.getNormals()[0], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, n.mesh.getNormals().size() * sizeof(Normal), &n.mesh.getNormals()[0], GL_STATIC_DRAW);
 			glEnableVertexAttribArray(NORMALS);
 			glVertexAttribPointer(NORMALS, 3, GL_FLOAT, GL_FALSE, sizeof(Normal), 0);
 		}
@@ -207,14 +209,13 @@ void destroyBufferObjects()
 
 void drawScene()
 {
-	glUseProgram(ProgramId);
-	glBindVertexArray(Vao_ID1);
+	n1.setup(view, proj, ProgramId);
+	n2.setup(view, proj, ProgramId);
+	n3.setup(view, proj, ProgramId);
 
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-
-	GLfloat model[16];
-	GLsizei size;
+	n1.setColor(false);
+	n2.setColor(true, Vector4D(0.6f, 0.2f, 0.0f, 0.0f));
+	n3.setColor(true, Vector4D(0.0f, 0.0f, 0.0f, 0.0f));
 
 	float animationSpeed = 0.02f;
 	for (int i = 0; i < 9; i++) {
@@ -237,119 +238,22 @@ void drawScene()
 		}
 		
 		Vector3D v = pos[i];
-		Matrix4D rotX = Matrix4D::rotationX(35.2f, false);
-		Matrix4D rotY = Matrix4D::rotationY(-45.0f, false);
-		Matrix4D rotZ = Matrix4D::rotationZ(90.2f, false);
-		Matrix4D transl = Matrix4D::translation(v.getX(), v.getY(), v.getZ());
-		(rotZ * rotX * rotY * transl).getColMajor(model);
-		glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-		glUniform1i(isSingleColor_UId, 0);
-		size = (GLsizei)m1.getVertices().size();
-		glDrawArrays(GL_TRIANGLES, 0, size);
+		n1.applyParticularTrnasform(Matrix4D::translation(v.getX(), v.getY(), v.getZ()));
+		n1.applyParticularTrnasform(Matrix4D::rotationY(-45.0f, false));
+		n1.applyParticularTrnasform(Matrix4D::rotationX(35.2f, false));
+		n1.applyParticularTrnasform(Matrix4D::rotationZ(90.2f, false));
+		n1.draw();
 	}
 
-	glBindVertexArray(Vao_ID2);
+	n2.applyParticularTrnasform(Matrix4D::scaling(4.0f, 4.0f, 4.0f));
+	n2.applyParticularTrnasform(Matrix4D::translation(3.5f, 3.0f, 0.0f));
+	//n2.applyTransform(Matrix4D::rotationY(90, false));
+	n2.draw();
 
-	(Matrix4D::translation(3.5f, 3.0f, 0.0f)
-		* Matrix4D::scaling(4.0f, 4.0f, 4.0f)).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 1);
-	GLfloat color[4] = {
-		0.6f, 0.2f, 0.0f, 0.0f };
-	glUniform4fv(Color_UId, 1, color);
-	size = (GLsizei)m2.getVertices().size();
-	glDrawArrays(GL_TRIANGLES, 0, size);
-
-	glBindVertexArray(Vao_ID3);
-
-	(Matrix4D::translation(3.5f, 3.0f, -4.0f) * 
-		Matrix4D::rotationX(180, false) *
-		Matrix4D::scaling(4.0f, 4.0f, 4.0f) ).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 1);
-	GLfloat color_1[4] = {
-		0.0f, 0.0f, 0.0f, 0.0f };
-	glUniform4fv(Color_UId, 1, color_1);
-	size = (GLsizei)m3.getVertices().size();
-	glDrawArrays(GL_TRIANGLES, 0, size);
-
-	
-	glUseProgram(0);
-
-/*
-	glBindVertexArray(Vao_ID1);
-	Matrix4D::identity().getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(3.0f, 0.0f, 0.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(6.0f, 0.0f, 0.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(9.0f, 0.0f, 0.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(9.0f, 3.0f, 0.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(9.0f, 6.0f, 0.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(9.0f, 9.0f, 0.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(9.0f, 9.0f, 3.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-	Matrix4D::translation(9.0f, 9.0f, 6.0f).getColMajor(model);
-	glUniformMatrix4fv(ModelMatrix_UId, 1, GL_FALSE, model);
-	glUniformMatrix4fv(ViewMatrix_UId, 1, GL_FALSE, view);
-	glUniformMatrix4fv(ProjectionMatrix_UId, 1, GL_FALSE, proj);
-	glUniform1i(isSingleColor_UId, 0);
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Vertices.size());
-
-
-	glBindVertexArray(0);
-
-	glUseProgram(0);
-	*/
+	n3.applyParticularTrnasform(Matrix4D::scaling(4.0f, 4.0f, 4.0f));
+	n3.applyParticularTrnasform(Matrix4D::rotationX(180, false));
+	n3.applyParticularTrnasform(Matrix4D::translation(3.5f, 3.0f, -4.0f));
+	n3.draw();
 
 
 
@@ -694,11 +598,16 @@ GLFWwindow* setup(int major, int minor,
 	setupCamera();
 	
 	m1.CreateMesh("Engine/assets/models/cube.obj");
-	createBufferObjects(Vao_ID1, m1);
+	n1.mesh = m1;
+	createBufferObjects(n1.VaoID, n1);
 	m2.CreateMesh("Engine/assets/models/frame.obj");
-	createBufferObjects(Vao_ID2, m2);
+	n2.mesh = m2;
+	createBufferObjects(n2.VaoID, n2);
 	m3.CreateMesh("Engine/assets/models/back.obj");
-	createBufferObjects(Vao_ID3, m3);
+	n3.mesh = m3;
+	createBufferObjects(n3.VaoID, n3);
+	n2.addChild(n1);
+	n2.addChild(n3);
 
 	std::string vs = "Engine/res/shaders/cube_vs.glsl";
 	std::string fs = "Engine/res/shaders/cube_fs.glsl";

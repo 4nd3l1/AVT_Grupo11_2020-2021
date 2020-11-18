@@ -15,14 +15,19 @@ class Mesh
 {
 
 public:
-	Mesh();
 
+	
+
+	Mesh();
+	GLuint* vao_id;
 	const void CreateMesh(std::string filename);
 	std::vector <Vertex> getVertices();
 	std::vector <Normal> getNormals();
 	std::vector <Texcoord> getTexCoords();
 	bool getNormalsLoaded();
 	bool getTexcoordsLoaded();
+	
+
 private:
 	std::vector <Vertex> Vertices, vertexData;
 	std::vector <Texcoord> Texcoords, texcoordData;
@@ -31,7 +36,6 @@ private:
 	std::vector <unsigned int> vertexIdx, texcoordIdx, normalIdx;
 
 	bool TexcoordsLoaded, NormalsLoaded;
-
 
 	void parseVertex(std::stringstream& sin);
 
